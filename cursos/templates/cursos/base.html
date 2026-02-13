@@ -7,6 +7,7 @@
     <title>{% block titulo %}Escola de Música Groaíras{% endblock %}</title>
     
     <link rel="icon" type="image/png" href="{% static 'cursos/img/logo.png' %}">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <style>
@@ -87,7 +88,6 @@
         @media (max-width: 850px) {
             .navbar { padding: 10px 20px; }
             
-            /* Esconde o texto e mantém apenas os ícones para ganhar espaço */
             .nav-link span, .user-name-text { display: none; }
             
             .nav-user { gap: 15px; }
@@ -96,44 +96,45 @@
             
             .main-container { padding: 20px 15px; }
             form label {
-            font-size: 1rem !important;
-            margin-top: 10px;
-    }
-}
+                font-size: 1rem !important;
+                margin-top: 10px;
+            }
+        }
+
+        /* --- ESTILOS DE FORMULÁRIO & GLASS --- */
         select.input-glass {
             cursor: pointer;
-            appearance: none; /* Remove a setinha padrão do navegador */
+            appearance: none; 
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
             background-repeat: no-repeat;
             background-position: right 15px center;
             background-size: 15px;
             padding-right: 40px !important;
-    }
+        }
 
-    
         select.input-glass option {
-            background-color: #1a1a2e !important; /* Mesma cor do seu fundo radial */
+            background-color: #1a1a2e !important; 
             color: white !important;
             padding: 10px;
-    }
+        }
 
-    
         select.input-glass:focus option:checked {
-            background: #a29bfe !important; /* Cor roxa da EMG */
+            background: #a29bfe !important; 
             color: #1a1a2e !important;
-    }
-            .input-glass::file-selector-button {
-                background: #a29bfe !important; /* Roxo da EMG */
-                color: #1a1a2e !important;
-                border: none;
-                padding: 8px 15px;
-                border-radius: 5px;
-                margin-right: 15px;
-                font-weight: bold;
-                cursor: pointer;
-                transition: 0.3s;
-                text-transform: uppercase;
-                font-size: 0.7rem;
+        }
+
+        .input-glass::file-selector-button {
+            background: #a29bfe !important; 
+            color: #1a1a2e !important;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin-right: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            font-size: 0.7rem;
         }
 
         .input-glass::file-selector-button:hover {
@@ -141,17 +142,6 @@
             color: white !important;
         }
 
-        /* Ajuste para o texto "Nenhum arquivo selecionado" */
-        .input-glass {
-            line-height: 1.5;
-            font-size: 0.9rem;
-        }
-        #id_cursos li {
-        margin-bottom: 12px;
-        list-style: none;
-        }
-
-        /* --- ESTILOS DE FORMULÁRIO & GLASS --- */
         .input-glass {
             background: rgba(255, 255, 255, 0.05) !important;
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -160,6 +150,8 @@
             color: white !important;
             width: 100%;
             box-sizing: border-box;
+            line-height: 1.5;
+            font-size: 0.9rem;
         }
 
         .btn-entrar {
@@ -180,6 +172,11 @@
             backdrop-filter: blur(15px);
             border-radius: 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #id_cursos li {
+            margin-bottom: 12px;
+            list-style: none;
         }
 
         .video-container {

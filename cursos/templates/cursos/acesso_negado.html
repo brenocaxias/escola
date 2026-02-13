@@ -1,0 +1,17 @@
+{% extends 'cursos/base.html' %}
+
+{% block conteudo %}
+<center style="margin-top: 100px;">
+    <div class="glass-card" style="padding: 50px; max-width: 500px; border: 2px solid #ff4757;">
+        <h1 style="color: #ff4757;">Acesso Restrito 🚫</h1>
+        <p style="color: #ccc; font-size: 1.1rem;">
+            {{ mensagem|default:"Você não tem permissão para acessar este material." }}
+        </p>
+        <p>Para acessar as aulas de <strong>{{ curso.nome }}</strong>, entre em contato com a coordenação em Groaíras.</p>
+        <br>
+        <a href="{% url 'index' %}" style="color: #a29bfe; text-decoration: none; font-weight: bold;">
+            ← Voltar para Meus Cursos
+        </a>
+    </div>
+</center>
+{% endblock %}

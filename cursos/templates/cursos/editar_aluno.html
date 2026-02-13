@@ -1,0 +1,20 @@
+{% extends 'cursos/base.html' %}
+{% block conteudo %}
+<div class="main-container" style="max-width: 600px; margin: 0 auto;">
+    <div class="glass-card" style="padding: 40px;">
+        <h2 style="color: #a29bfe; text-align: center; margin-bottom: 30px;">Editar Cadastro: {{ aluno.username }}</h2>
+        
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-entrar" style="width: 100%; margin-top: 20px;">
+                SALVAR ALTERAÇÕES
+            </button>
+        </form>
+        
+        <p style="text-align: center; margin-top: 20px;">
+            <a href="{% url 'painel_coordenador' %}" style="color: #888; text-decoration: none;">← Cancelar e Voltar</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

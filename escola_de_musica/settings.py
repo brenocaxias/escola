@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cursos'
 ]
 
 MIDDLEWARE = [
@@ -72,10 +73,17 @@ WSGI_APPLICATION = 'escola_de_musica.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+SECRET_KEY = os.getenv('SECRET_KEY', 'chave-padrao-temporaria')
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('DB_NAME', 'emg_db'),
+        'USER': os.getenv('DB_USER', 'root'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'SUA_SENHA_LOCAL'), # Sua senha do Workbench
+        'HOST': os.getenv('DB_HOST', '127.0.0.1'),
+        'PORT': os.getenv('DB_PORT', '3306'),
     }
 }
 
@@ -102,9 +110,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'pt-BR'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
 
@@ -120,3 +128,22 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# URL para acessar os arquivos via navegador
+MEDIA_URL = '/media/'
+
+# Pasta real no seu computador onde os arquivos ficarão guardados
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Após o login, o aluno é enviado para a lista de cursos
+LOGIN_REDIRECT_URL = 'login_sucesso'
+# Se ele tentar acessar algo sem estar logado, é mandado para cá
+LOGIN_URL = '/accounts/login/'
+
+
+# OU, se preferir que ele volte para a sua tela de login:
+LOGOUT_REDIRECT_URL = 'login'
+STATIC_URL = 'static/'
+# Caminho onde os PDFs serão salvos no seu computador
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

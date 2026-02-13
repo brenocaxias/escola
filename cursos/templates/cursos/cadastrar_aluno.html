@@ -1,0 +1,18 @@
+{% extends 'cursos/base.html' %}
+
+{% block conteudo %}
+<center>
+    <div class="glass-card" style="padding: 40px; max-width: 600px; margin-top: 50px; text-align: left;">
+        <h2 style="color: #a29bfe; text-align: center;">Novo Cadastro de Aluno</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-entrar" style="width: 100%; margin-top: 20px;">
+                CONFIRMAR MATRÍCULA
+            </button>
+        </form>
+        <br>
+        <a href="{% url 'painel_coordenador' %}" style="color: #ccc; text-decoration: none;">← Voltar ao Painel</a>
+    </div>
+</center>
+{% endblock %}

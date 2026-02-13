@@ -1,0 +1,48 @@
+{% extends 'cursos/base.html' %}
+
+{% block conteudo %}
+<style>
+    /* Estilo do Banner Principal */
+    .hero {
+        text-align: center;
+        padding: 80px 20px;
+        background: rgba(255, 255, 255, 0.02);
+        margin-bottom: 40px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .hero h1 {
+        font-size: 3.5rem;
+        background: linear-gradient(to right, #a29bfe, #6c5ce7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+    }
+    .grid-cursos {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+</style>
+
+<div class="hero">
+    <h1>Domine a Música com Tecnologia</h1>
+    <p style="color: #ccc; font-size: 1.2rem;">Aqui está/estão o(s) cursos em que você está matriculado(a).</p>
+</div>
+
+<div class="grid-cursos">
+    {% for curso in cursos %}
+    <a href="{% url 'detalhe_curso' curso.slug %}" style="text-decoration: none; color: inherit;">
+        <div class="glass-card" style="border: 1px solid {{ curso.cor_neon }}; padding: 30px; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: {{ curso.cor_neon }}; filter: blur(60px); opacity: 0.3;"></div>
+            
+            <h2 style="color: {{ curso.cor_neon }}; margin-top: 0;">{{ curso.nome }}</h2>
+            <p style="color: #aaa; line-height: 1.6;">{{ curso.descricao|truncatechars:100 }}</p>
+            
+            <span style="color: {{ curso.cor_neon }}; font-weight: bold; font-size: 0.9rem;">VER DETALHES →</span>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

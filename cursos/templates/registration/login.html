@@ -1,0 +1,107 @@
+{% extends 'cursos/base.html' %}
+
+{% block conteudo %}
+<style>
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+    }
+
+    /* Ajuste fino no Glassmorphism */
+    .login-card {
+        padding: 50px;
+        width: 100%;
+        max-width: 400px;
+        border: 1px solid rgba(162, 155, 254, 0.3); /* Borda roxa sutil */
+        text-align: center;
+    }
+
+    .login-card h2 {
+        font-size: 2rem;
+        margin-bottom: 30px;
+        background: linear-gradient(to right, #a29bfe, #6c5ce7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Estilizando os campos do Django (Labels e Inputs) */
+    .login-card p {
+        text-align: left;
+        margin-bottom: 20px;
+    }
+
+    .login-card label {
+        display: block;
+        margin-bottom: 8px;
+        color: #a29bfe;
+        font-size: 0.9rem;
+        font-weight: bold;
+    }
+
+    .login-card input {
+        width: 100%;
+        padding: 12px 15px;
+        background: rgba(255, 255, 255, 0.05); /* Fundo quase transparente */
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: white;
+        font-size: 1rem;
+        box-sizing: border-box; /* Garante que o padding não quebre a largura */
+        transition: 0.3s;
+    }
+
+    .login-card input:focus {
+        outline: none;
+        border-color: #a29bfe;
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 15px rgba(162, 155, 254, 0.2);
+    }
+
+    /* Botão com efeito Neon */
+    .btn-entrar {
+        width: 100%;
+        padding: 15px;
+        background: #6c5ce7;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 10px;
+        box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+    }
+
+    .btn-entrar:hover {
+        background: #a29bfe;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(162, 155, 254, 0.4);
+    }
+</style>
+
+<div class="login-container">
+    <div class="glass-card login-card">
+        <h2>Área do Aluno</h2>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            {% for field in form %}
+                <p>
+                    <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                    {{ field }}
+                </p>
+            {% endfor %}
+
+            <button type="submit" class="btn-entrar">ENTRAR NA PLATAFORMA</button>
+        </form>
+        
+        <p style="text-align: center; margin-top: 20px; font-size: 0.8rem; color: #666;">
+            Groaíras Music • Plataforma de Estudos
+        </p>
+    </div>
+</div>
+{% endblock %}

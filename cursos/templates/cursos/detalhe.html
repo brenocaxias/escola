@@ -1,0 +1,15 @@
+{% extends 'cursos/base.html' %}
+
+{% block titulo %}Curso de {{ curso.nome }}{% endblock %}
+
+{% block conteudo %}
+<center>
+    <div class="glass-card" style="border: 2px solid {{ curso.cor_neon }}; padding: 50px; max-width: 500px; margin-top: 50px;">
+        <h1 style="color: {{ curso.cor_neon }}">{{ curso.nome }}</h1>
+        <p>{{ curso.descricao }}</p>
+        <button style="background: {{ curso.cor_neon }}; border: none; padding: 10px 20px; color: white; border-radius: 30px; cursor: pointer; font-weight: bold;">
+            MATRICULAR AGORA
+        </button>
+    </div>
+</center>
+{% endblock %}

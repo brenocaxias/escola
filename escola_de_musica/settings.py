@@ -4,20 +4,20 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- SEGURANÇA ---
-SECRET_KEY = os.getenv('SECRET_KEY', 'chave-padrao-temporaria')
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-he8qc3tc6w$gkrkmnovhc!n87(=x$qit51)iz%5ibxs=wxlvzc')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = ['https://escola-production-d4e0.up.railway.app']
 
 # --- APLICAÇÕES ---
 INSTALLED_APPS = [
-    'cloudinary_storage',           # Deve ser o primeiro para interceptar mídia
+    'cloudinary_storage',           # Deve ser o primeiro
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary',                   # Necessário para integração com Cloudinary
+    'cloudinary',
     'django.contrib.staticfiles',
     'whitenoise.runserver_nostatic', 
     'cursos'
@@ -26,7 +26,7 @@ INSTALLED_APPS = [
 # --- MIDDLEWARE ---
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Essencial para servir logo/maestro
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Essencial para a Logo/Maestro
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -72,14 +72,22 @@ TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True
 
-#STATIC_URL = '/static/'
+# --- ARQUIVOS ESTÁTICOS E MÍDIA ---
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [] # Vazio para evitar o erro de duplicidade que vimos no log
 
-# DEIXE ESTA LISTA VAZIA! 
-# O Django já vai achar os arquivos dentro de cursos/static sozinho.
-STATICFILES_DIRS = []
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Configuração de armazenamento estável para o Railway
+# --- CONFIGURAÇÃO CLOUDINARY ---
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUD_NAME'),
+    'API_KEY': os.getenv('API_KEY'),
+    'API_SECRET': os.getenv('API_SECRET'),
+}
+
+# --- ARMAZENAMENTO (STORAGES) ---
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
@@ -89,19 +97,8 @@ STORAGES = {
     },
 }
 
+# Linha extra para garantir compatibilidade com o app cloudinary_storage
 STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
-# --- ARQUIVOS DE MÍDIA (UPLOADS DA VITRINE) ---
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# --- CONFIGURAÇÃO CLOUDINARY ---
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUD_NAME'),
-    'API_KEY': os.environ.get('API_KEY'),
-    'API_SECRET': os.environ.get('API_SECRET'),
-}
-
-
 
 # --- AUTENTICAÇÃO ---
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

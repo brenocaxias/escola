@@ -88,16 +88,18 @@ CLOUDINARY_STORAGE = {
 
 # --- NOVO PADRÃO DE ARMAZENAMENTO (STORAGES) ---
 STORAGES = {
+    # Armazenamento de Fotos (Cloudinary)
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
+    # Armazenamento de Estáticos (WhiteNoise Simples)
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.StaticFilesStorage",
     },
 }
 
-# --- COMPATIBILIDADE (O Cloudinary ainda pede esta linha para o collectstatic) ---
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+# Garante que o WhiteNoise use a versão simples sem compactação
+STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
 
 # --- AUTENTICAÇÃO ---
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

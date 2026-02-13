@@ -161,4 +161,13 @@ CLOUDINARY_STORAGE = {
 }
 
 # Define o Cloudinary como o local de armazenamento de mídia
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+STORAGES = {
+    # Configuração para arquivos estáticos (CSS, Logos, JS) usando WhiteNoise
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    # Configuração para uploads (Fotos do Maestro, Vitrine) usando Cloudinary
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}

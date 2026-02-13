@@ -72,21 +72,14 @@ TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True
 
-# --- ARQUIVOS ESTÁTICOS (LOGO, MAESTRO, CSS) ---
-# URL para acessar via navegador
-STATIC_URL = '/static/'
-
-# Pasta onde o Django vai REUNIR tudo para o Railway (Não mude isso)
+#STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Pasta onde suas imagens REALMENTE estão agora
-# Usamos .parent se o settings estiver dentro de uma subpasta, 
-# mas como você confirmou o caminho, vamos garantir assim:
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'cursos', 'static'),
-]
+# DEIXE ESTA LISTA VAZIA! 
+# O Django já vai achar os arquivos dentro de cursos/static sozinho.
+STATICFILES_DIRS = []
 
-# Configuração de armazenamento simples para o WhiteNoise
+# Configuração de armazenamento estável para o Railway
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
@@ -96,6 +89,7 @@ STORAGES = {
     },
 }
 
+STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
 # --- ARQUIVOS DE MÍDIA (UPLOADS DA VITRINE) ---
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -108,8 +102,6 @@ CLOUDINARY_STORAGE = {
 }
 
 
-# Compatibilidade para o collectstatic não falhar
-STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
 
 # --- AUTENTICAÇÃO ---
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

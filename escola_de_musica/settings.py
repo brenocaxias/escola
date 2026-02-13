@@ -78,7 +78,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Mude para apontar apenas para a pasta static raiz do app
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'cursos', 'static'),
+    os.path.join(BASE_DIR, 'cursos'),
 ]
 
 # Force o WhiteNoise a não buscar arquivos em outros lugares

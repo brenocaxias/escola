@@ -1,1 +1,1 @@
-web: gunicorn aprendendo_django.wsgi
+web: gunicorn escola_de_musica.wsgi

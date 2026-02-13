@@ -76,10 +76,13 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Mapeamento exato da pasta que você confirmou
+# Mude para apontar apenas para a pasta static raiz do app
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'cursos', 'static'),
 ]
+
+# Force o WhiteNoise a não buscar arquivos em outros lugares
+WHITENOISE_KEEP_ONLY_HASHED_FILES = True
 
 # --- ARQUIVOS DE MÍDIA (UPLOADS DA VITRINE) ---
 MEDIA_URL = '/media/'

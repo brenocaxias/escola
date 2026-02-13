@@ -5,28 +5,28 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- SEGURANÇA ---
 SECRET_KEY = os.getenv('SECRET_KEY', 'chave-padrao-temporaria')
-DEBUG = os.getenv('DEBUG', 'False') == 'True' # No Railway, o padrão deve ser False
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = ['https://escola-production-d4e0.up.railway.app']
 
-
+# --- APLICAÇÕES ---
 INSTALLED_APPS = [
-    'cloudinary_storage',      # Precisa ser o primeiro
+    'cloudinary_storage',           # Deve ser o primeiro para interceptar mídia
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary',              # Cloudinary vem antes do staticfiles
+    'cloudinary',                   # Necessário para integração com Cloudinary
     'django.contrib.staticfiles',
-    'whitenoise.runserver_nostatic', # Ajuda o WhiteNoise no desenvolvimento
+    'whitenoise.runserver_nostatic', 
     'cursos'
 ]
 
 # --- MIDDLEWARE ---
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # WhiteNoise logo abaixo do Security
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Essencial para servir logo/maestro
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -54,7 +54,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'escola_de_musica.wsgi.application'
 
-# --- BANCO DE DADOS (MYSQL) ---
+# --- BANCO DE DADOS (MYSQL RAILWAY) ---
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -72,13 +72,16 @@ TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True
 
-# --- ARQUIVOS ESTÁTICOS E MÍDIA ---
+# --- ARQUIVOS ESTÁTICOS (LOGO, MAESTRO, CSS) ---
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Mapeamento exato da pasta que você confirmou
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'cursos', 'static'),
 ]
 
+# --- ARQUIVOS DE MÍDIA (UPLOADS DA VITRINE) ---
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -89,19 +92,17 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.environ.get('API_SECRET'),
 }
 
-# --- NOVO PADRÃO DE ARMAZENAMENTO (STORAGES) ---
+# --- ARMAZENAMENTO (STORAGES) ---
 STORAGES = {
-    # Armazenamento de Fotos (Cloudinary)
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
-    # Armazenamento de Estáticos (WhiteNoise Simples)
     "staticfiles": {
         "BACKEND": "whitenoise.storage.StaticFilesStorage",
     },
 }
 
-# Garante que o WhiteNoise use a versão simples sem compactação
+# Compatibilidade para o collectstatic não falhar
 STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
 
 # --- AUTENTICAÇÃO ---

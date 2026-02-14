@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-he8qc3tc6w$gkrkmnovhc!n87(=x$qit51)iz%5ibxs=wxlvzc')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://escola-production-d4e0.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://escola-musica-groairas.up.railway.app']
 
 # --- APLICAÇÕES ---
 INSTALLED_APPS = [

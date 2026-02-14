@@ -1,52 +1,78 @@
 {% extends 'cursos/base.html' %}
 {% load static %}
+
 {% block conteudo %}
 <div class="main-container">
-    <h1 style="color: #a29bfe; margin-bottom: 10px;">{{ curso.nome }}</h1>
-    <p style="color: #888; margin-bottom: 30px;">Materiais de apoio e aulas gravadas</p>
+    <h1 style="color: {{ curso.cor_neon }}; text-shadow: 0 0 10px {{ curso.cor_neon }}55; margin-bottom: 10px;">
+        {{ curso.nome }}
+    </h1>
+    <p style="color: #888; margin-bottom: 30px;">Organizado por módulos e materiais de apoio</p>
 
-    <div style="display: grid; gap: 20px;">
-        {% for material in materiais %}
-            <div class="glass-card" style="padding: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        {% if ".mp4" in material.arquivo.name|lower or ".mov" in material.arquivo.name|lower %}
-                            <i class="fas fa-file-video" style="font-size: 2rem; color: #a29bfe;"></i>
-                        {% else %}
-                            <i class="fas fa-file-pdf" style="font-size: 2rem; color: #ff4757;"></i>
-                        {% endif %}
-                        
-                        <div>
-                            <h3 style="margin: 0; font-size: 1.1rem;">{{ material.titulo }}</h3>
-                            <small style="color: #666;">Enviado em: {{ material.data_upload|date:"d/m/Y" }}</small>
+    <div style="display: grid; gap: 30px;">
+        {% for modulo in curso.modulos.all %}
+            <div class="modulo-section">
+                <h2 style="color: #fff; font-size: 1.4rem; margin-bottom: 15px; border-left: 4px solid {{ curso.cor_neon }}; padding-left: 15px;">
+                    {{ modulo.titulo }}
+                </h2>
+
+                <div style="display: grid; gap: 20px;">
+                    {# --- LOOP DE MATERIAIS DO MÓDULO --- #}
+                    {% for material in modulo.materiais.all %}
+                        <div class="glass-card" style="padding: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    {% if ".mp4" in material.arquivo.name|lower or ".mov" in material.arquivo.name|lower %}
+                                        <i class="fas fa-file-video" style="font-size: 2rem; color: {{ curso.cor_neon }};"></i>
+                                    {% else %}
+                                        <i class="fas fa-file-pdf" style="font-size: 2rem; color: #ff4757;"></i>
+                                    {% endif %}
+                                    
+                                    <div>
+                                        <h3 style="margin: 0; font-size: 1.1rem; color: #eee;">{{ material.titulo }}</h3>
+                                        <small style="color: #666;">Enviado em: {{ material.data_upload|date:"d/m/Y" }}</small>
+                                    </div>
+                                </div>
+
+                                {% if not ".mp4" in material.arquivo.name|lower and not ".mov" in material.arquivo.name|lower %}
+                                    <a href="{{ material.arquivo.url }}" target="_blank" class="btn-entrar" 
+                                       style="text-decoration: none; font-size: 0.8rem; padding: 8px 15px; background: {{ curso.cor_neon }}; border: none;">
+                                        <i class="fas fa-download"></i> BAIXAR PDF
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            {# AREA DO PLAYER DE VÍDEO #}
+                            {% if ".mp4" in material.arquivo.name|lower or ".mov" in material.arquivo.name|lower %}
+                                <div class="video-container">
+                                    <video controls controlsList="nodownload" poster="{% static 'cursos/img/logo.png' %}" style="width: 100%; border-radius: 8px;">
+                                        <source src="{{ material.arquivo.url }}" type="video/mp4">
+                                        Seu navegador não suporta a reprodução de vídeos.
+                                    </video>
+                                </div>
+                            {% endif %}
                         </div>
-                    </div>
+                    {% empty %}
+                        <p style="color: #555; font-style: italic; margin-left: 20px;">Nenhum material neste módulo.</p>
+                    {% endfor %}
 
-                    {% if not ".mp4" in material.arquivo.name|lower and not ".mov" in material.arquivo.name|lower %}
-                        <a href="{{ material.arquivo.url }}" target="_blank" class="btn-entrar" style="text-decoration: none; font-size: 0.8rem; padding: 8px 15px;">
-                            <i class="fas fa-download"></i> BAIXAR PDF
-                        </a>
-                    {% endif %}
+                    {# --- LOOP DE AULAS (TEXTO/VIDEO URL) --- #}
+                    {% for aula in modulo.aulas.all %}
+                        <div class="glass-card" style="padding: 15px; border-left: 2px solid {{ curso.cor_neon }};">
+                            <h4 style="margin: 0; color: #ddd;">🎬 Aula: {{ aula.titulo }}</h4>
+                            </div>
+                    {% endfor %}
                 </div>
-
-                {# AREA DO PLAYER DE VÍDEO #}
-                {% if ".mp4" in material.arquivo.name|lower or ".mov" in material.arquivo.name|lower %}
-                    <div class="video-container">
-                        <video controls controlsList="nodownload" poster="{% static 'cursos/img/logo.png' %}">
-                            <source src="{{ material.arquivo.url }}" type="video/mp4">
-                            Seu navegador não suporta a reprodução de vídeos.
-                        </video>
-                    </div>
-                {% endif %}
             </div>
         {% empty %}
             <div class="glass-card" style="padding: 30px; text-align: center; color: #666;">
-                <i class="fas fa-info-circle"></i> Nenhum material disponível para este curso ainda.
+                <i class="fas fa-info-circle"></i> Nenhum módulo ou conteúdo disponível para este curso ainda.
             </div>
         {% endfor %}
     </div>
 
     <br>
-    <a href="{% url 'index' %}" style="color: #a29bfe; text-decoration: none;">← Voltar aos meus cursos</a>
+    <a href="{% url 'index' %}" style="color: {{ curso.cor_neon }}; text-decoration: none; font-weight: bold;">
+        ← Voltar aos meus cursos
+    </a>
 </div>
 {% endblock %}

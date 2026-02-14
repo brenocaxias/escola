@@ -27,7 +27,7 @@ class CadastroAlunoForm(forms.ModelForm):
 class MaterialForm(forms.ModelForm):
     class Meta:
         model = Material
-        fields = ['titulo', 'arquivo', 'curso']
+        fields = ['titulo', 'arquivo', 'modulo']
         
         # Widgets para o estilo Glassmorphism da EMG
         widgets = {
@@ -38,7 +38,7 @@ class MaterialForm(forms.ModelForm):
             'arquivo': forms.FileInput(attrs={
                 'class': 'input-glass'
             }),
-            'curso': forms.Select(attrs={
+            'modulo': forms.Select(attrs={
                 'class': 'input-glass'
             }),
         }

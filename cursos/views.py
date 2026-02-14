@@ -24,21 +24,26 @@ def index(request):
 
     return render(request, 'cursos/index.html', {'cursos': cursos})
 def detalhe_curso(request, instrumento_slug):
-    # O Python pega o nome da URL e limpa para o título
+    # 1. Busca o curso pelo slug
     curso = get_object_or_404(Curso, slug=instrumento_slug)
-    if request.user.is_superuser:
-        return render(request, 'cursos/detalhe.html', {'curso':curso})
-    try:
-        if curso in request.user.aluno.cursos_matriculados.all():
-            return render (request,'curso/detalhe.html', {'curso':curso})
-    except AttributeError:
-        #Se o usuario logado não tiver um perfil de aluno vinculado
-        return render (request, 'cursos/acesso_negado.html',{'mensagem': 'Você não é aluno'})
     
-    return render(request,'cursos/acesso_negado.html',{'mensagem': 'Você não está matriculado neste curso.'})
-def home(request):
-    return render(request, 'cursos/home.html')
-# No seu cursos/views.py
+    # 2. Trava de Segurança: Verifica se o usuário tem permissão
+    # Se for superuser, ele passa direto.
+    if not request.user.is_superuser:
+        # Se não for superuser, verificamos se ele é um aluno matriculado
+        if not hasattr(request.user, 'aluno') or curso not in request.user.aluno.cursos_matriculados.all():
+            return render(request, 'cursos/acesso_negado.html', {
+                'mensagem': 'Você não tem permissão para acessar este curso ou não está matriculado.'
+            })
+
+    # 3. Preparação para o Template
+    # Não filtramos materiais aqui! O template acessará via curso.modulos.all
+    context = {
+        'curso': curso,
+    }
+    
+    return render(request, 'cursos/detalhe_curso.html', context)
+
 
 @login_required
 @user_passes_test(lambda u: u.is_staff)
@@ -98,19 +103,7 @@ def upload_material(request):
     else:
         form = MaterialForm()
     return render(request, 'cursos/upload_material.html', {'form': form})
-def detalhe_curso(request, instrumento_slug):
-    # 1. Busca o curso pelo slug. Se não existir, mostra erro 404 (página não encontrada)
-    curso = get_object_or_404(Curso, slug=instrumento_slug)
-    
-    # 2. Busca os materiais vinculados a esse curso específico
-    materiais = Material.objects.filter(curso=curso).order_by('-data_upload')
-    
-    context = {
-        'curso': curso,
-        'materiais': materiais
-    }
-    
-    return render(request, 'cursos/detalhe_curso.html', context)
+
 def excluir_material(request,material_id):
     material=get_object_or_404(Material, id=material_id)
     if material.arquivo:

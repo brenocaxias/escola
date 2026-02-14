@@ -108,3 +108,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'login_sucesso'
 LOGIN_URL = '/accounts/login/'
 LOGOUT_REDIRECT_URL = 'login'
+
+#limpeza do git test

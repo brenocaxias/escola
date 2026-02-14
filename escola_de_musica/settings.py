@@ -4,8 +4,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- SEGURANÇA ---
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-he8qc3tc6w$gkrkmnovhc!n87(=x$qit51)iz%5ibxs=wxlvzc')
-DEBUG = True
+SECRET_KEY = os.getenv('SECRET_KEY')
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = ['https://escola-production-d4e0.up.railway.app']
 
@@ -85,9 +85,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # --- CONFIGURAÇÃO CLOUDINARY ---
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUD_NAME', 'dvajf62ep'), # Use o seu Cloud Name aqui
-    'API_KEY': os.getenv('API_KEY', '389435343586456'),   # Use sua API Key
-    'API_SECRET': os.getenv('API_SECRET', '0MXt3289VavMp8wemm6csor6lNM'), # Coloque sua Secret real
+    'CLOUD_NAME': os.getenv('CLOUD_NAME'), # Use o seu Cloud Name aqui
+    'API_KEY': os.getenv('API_KEY'),   # Use sua API Key
+    'API_SECRET': os.getenv('API_SECRET'), # Coloque sua Secret real
 }
 
 # --- ARMAZENAMENTO (STORAGES) ---

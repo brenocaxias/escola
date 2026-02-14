@@ -19,7 +19,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'cloudinary',
     'django.contrib.staticfiles',
-    'whitenoise.runserver_nostatic', 
     'cursos'
 ]
 
@@ -76,9 +75,8 @@ USE_TZ = True
 # --- ARQUIVOS ESTÁTICOS E MÍDIA ---
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'cursos', 'static'),
-]
+STATICFILES_DIRS = []
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -96,12 +94,20 @@ STORAGES = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.StaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 
+# 4. Linha de segurança para o WhiteNoise
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_MANIFEST_STRICT = False
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
 # Linha extra para garantir compatibilidade com o app cloudinary_storage
-STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
+
 
 # --- AUTENTICAÇÃO ---
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

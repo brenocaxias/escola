@@ -94,7 +94,8 @@ STORAGES = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        # Mudamos de CompressedManifest para o simples, que é mais estável no Railway
+        "BACKEND": "whitenoise.storage.StaticFilesStorage", 
     },
 }
 STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"

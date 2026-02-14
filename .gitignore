@@ -12,3 +12,4 @@ media/
 Thumbs.db
 desktop.ini
 .venv
+db.sqlite3

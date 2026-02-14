@@ -17,3 +17,8 @@ class AlunoAdmin(admin.ModelAdmin):
     get_cursos.short_description= 'Cursos Matriculados'
 admin.site.register(Aula)
 admin.site.register(Material)
+from .models import Galeria # Ou o nome que você deu ao modelo da vitrine
+
+@admin.register(Galeria)
+class GaleriaAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'data_postagem')

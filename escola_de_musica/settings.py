@@ -5,7 +5,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- SEGURANÇA ---
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-he8qc3tc6w$gkrkmnovhc!n87(=x$qit51)iz%5ibxs=wxlvzc')
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+DEBUG = True
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = ['https://escola-production-d4e0.up.railway.app']
 
@@ -55,14 +55,15 @@ TEMPLATES = [
 WSGI_APPLICATION = 'escola_de_musica.wsgi.application'
 
 # --- BANCO DE DADOS (MYSQL RAILWAY) ---
+# --- BANCO DE DADOS (Configuração Híbrida) ---
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
+        'NAME': os.getenv('DB_NAME', 'emg_db'),        # 'emg_db' é o nome local
+        'USER': os.getenv('DB_USER', 'root'),          # 'root' é o usuário local
+        'PASSWORD': os.getenv('DB_PASSWORD', 'Caxias0404'), # Sua senha do Workbench
+        'HOST': os.getenv('DB_HOST', '127.0.0.1'),     # Localhost
+        'PORT': os.getenv('DB_PORT', '3306'),
     }
 }
 
@@ -75,16 +76,18 @@ USE_TZ = True
 # --- ARQUIVOS ESTÁTICOS E MÍDIA ---
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [] # Vazio para evitar o erro de duplicidade que vimos no log
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'cursos', 'static'),
+]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # --- CONFIGURAÇÃO CLOUDINARY ---
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUD_NAME'),
-    'API_KEY': os.getenv('API_KEY'),
-    'API_SECRET': os.getenv('API_SECRET'),
+    'CLOUD_NAME': os.getenv('CLOUD_NAME', 'dvajf62ep'), # Use o seu Cloud Name aqui
+    'API_KEY': os.getenv('API_KEY', '389435343586456'),   # Use sua API Key
+    'API_SECRET': os.getenv('API_SECRET', '0MXt3289VavMp8wemm6csor6lNM'), # Coloque sua Secret real
 }
 
 # --- ARMAZENAMENTO (STORAGES) ---

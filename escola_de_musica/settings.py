@@ -97,6 +97,7 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
 
 # 4. Linha de segurança para o WhiteNoise
 WHITENOISE_USE_FINDERS = True

@@ -19,17 +19,21 @@
                     {# --- LOOP DE MATERIAIS DO MÓDULO --- #}
                     {% for material in modulo.materiais.all %}
                         <div class="glass-card" style="padding: 20px;">
-                            {% with ext=material.arquivo.name|lower %}
+                            {# Pegamos os últimos 4 caracteres para checar a extensão real #}
+                            {% with ext=material.arquivo.name|lower|slice:"-4:" %}
                             
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                                 <div style="display: flex; align-items: center; gap: 15px;">
-                                    {# ÍCONES DINÂMICOS #}
-                                    {% if ".mp4" in ext or ".mov" in ext or ".webm" in ext %}
+                                    
+                                    {# LÓGICA DE ÍCONES CORRIGIDA #}
+                                    {% if ".mp4" in ext or ".mov" in ext or "webm" in ext %}
                                         <i class="fas fa-file-video" style="font-size: 2rem; color: {{ curso.cor_neon }};"></i>
-                                    {% elif ".jpg" in ext or ".jpeg" in ext or ".png" in ext or ".webp" in ext %}
+                                    {% elif ".jpg" in ext or "jpeg" in ext or ".png" in ext or "webp" in ext %}
                                         <i class="fas fa-file-image" style="font-size: 2rem; color: #00d2d3;"></i>
-                                    {% else %}
+                                    {% elif ".pdf" in ext %}
                                         <i class="fas fa-file-pdf" style="font-size: 2rem; color: #ff4757;"></i>
+                                    {% else %}
+                                        <i class="fas fa-file-alt" style="font-size: 2rem; color: #aaa;"></i>
                                     {% endif %}
                                     
                                     <div>
@@ -38,26 +42,24 @@
                                     </div>
                                 </div>
 
-                                {# BOTÃO DE DOWNLOAD (Não aparece para vídeos, mas aparece para imagens e PDFs) #}
-                                {% if not ".mp4" in ext and not ".mov" in ext %}
+                                {# BOTÃO DE DOWNLOAD #}
+                                {% if ".mp4" not in ext and ".mov" not in ext %}
                                     <a href="{{ material.arquivo.url }}" target="_blank" class="btn-entrar" 
                                        style="text-decoration: none; font-size: 0.8rem; padding: 8px 15px; background: {{ curso.cor_neon }}; border: none;">
-                                        <i class="fas fa-download"></i> BAIXAR {% if ".jpg" in ext or ".png" in ext %}IMAGEM{% else %}PDF{% endif %}
+                                        <i class="fas fa-download"></i> BAIXAR {% if ".jpg" in ext or ".png" in ext %}IMAGEM{% else %}ARQUIVO{% endif %}
                                     </a>
                                 {% endif %}
                             </div>
 
-                            {# AREA DO PLAYER DE VÍDEO #}
-                            {% if ".mp4" in ext or ".mov" in ext or ".webm" in ext %}
+                            {# EXIBIÇÃO DO CONTEÚDO #}
+                            {% if ".mp4" in ext or ".mov" in ext %}
                                 <div class="video-container" style="background: #000; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
                                     <video controls controlsList="nodownload" style="width: 100%; display: block;">
                                         <source src="{{ material.arquivo.url }}" type="video/mp4">
                                         Seu navegador não suporta a reprodução de vídeos.
                                     </video>
                                 </div>
-                            
-                            {# VISUALIZADOR DE IMAGEM (NOVO!) #}
-                            {% elif ".jpg" in ext or ".jpeg" in ext or ".png" in ext or ".webp" in ext %}
+                            {% elif ".jpg" in ext or ".png" in ext or "jpeg" in ext or "webp" in ext %}
                                 <div style="text-align: center; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 10px; border: 1px solid rgba(255,255,255,0.05);">
                                     <img src="{{ material.arquivo.url }}" alt="{{ material.titulo }}" 
                                          style="max-width: 100%; max-height: 500px; border-radius: 8px; cursor: pointer;"

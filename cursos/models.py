@@ -47,6 +47,16 @@ class Material(models.Model):
 
     def __str__(self):
         return f"{self.titulo} - {self.modulo.titulo}"
+    @property
+    def tipo_arquivo(self):
+        nome = self.arquivo.name.lower()
+        if nome.endswith(('.mp4', '.mov', '.webm')):
+            return 'video'
+        elif nome.endswith(('.jpg', '.jpeg', '.png', '.webp', '.gif')):
+            return 'imagem'
+        elif nome.endswith('.pdf'):
+            return 'pdf'
+        return 'outro'
 
     @property
     def is_video(self):

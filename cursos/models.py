@@ -39,29 +39,30 @@ class Aula(models.Model):
         return self.titulo
 
 class Material(models.Model):
-    # Mudamos de Curso para Modulo
     modulo = models.ForeignKey(Modulo, on_delete=models.CASCADE, related_name='materiais')
     titulo = models.CharField(max_length=200)
-    arquivo = models.FileField(upload_to='materiais/pdf')
+    arquivo = models.FileField(upload_to='materiais/') # Removi o 'pdf' do caminho para não confundir
     data_upload = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.titulo} - {self.modulo.titulo}"
+
     @property
     def tipo_arquivo(self):
-        nome = self.arquivo.name.lower()
-        if nome.endswith(('.mp4', '.mov', '.webm')):
+        # Pega a extensão real do arquivo
+        ext = os.path.splitext(self.arquivo.name)[1].lower()
+        
+        if ext in ['.mp4', '.mov', '.webm', '.avi']:
             return 'video'
-        elif nome.endswith(('.jpg', '.jpeg', '.png', '.webp', '.gif')):
+        elif ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']:
             return 'imagem'
-        elif nome.endswith('.pdf'):
+        elif ext == '.pdf':
             return 'pdf'
         return 'outro'
 
     @property
     def is_video(self):
-        ext = os.path.splitext(self.arquivo.name)[1].lower()
-        return ext in ['.mp4', '.webm', '.ogg', '.mov']
+        return self.tipo_arquivo == 'video'
 
 class Aluno(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

@@ -6,7 +6,7 @@ urlpatterns = [
     # Isso aceita /cursos/violao, /cursos/piano, /cursos/bateria...
     
     path('login-sucesso/', views.login_sucesso,name='login_sucesso'),
-    path('painel-gestao', views.painel_coordenador,name='painel_coordenador'),
+    path('painel-gestao/', views.painel_coordenador,name='painel_coordenador'),
     path('', views.index, name='index'),
     path('painel-gestao/cadastrar-aluno/', views.cadastrar_aluno, name='cadastrar_aluno'),
     path('painel-gestao/upload-material/', views.upload_material, name='upload_material'),

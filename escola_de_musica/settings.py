@@ -86,6 +86,7 @@ CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUD_NAME'), # Use o seu Cloud Name aqui
     'API_KEY': os.getenv('API_KEY'),   # Use sua API Key
     'API_SECRET': os.getenv('API_SECRET'), # Coloque sua Secret real
+    'RESOURCE_TYPES': 'auto',
 }
 
 # --- ARMAZENAMENTO (STORAGES) ---

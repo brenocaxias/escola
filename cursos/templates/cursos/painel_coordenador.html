@@ -29,7 +29,7 @@
         </div>
 
         <div class="glass-card" style="padding: 25px;">
-            <h3><i class="fas fa-file-pdf"></i> Materiais Didáticos</h3>
+            <h3><i class="fas fa-file-alt"></i> Materiais Didáticos</h3>
             <p style="color: #888;">Total de arquivos: <strong style="color: #fff;">{{ materiais.count }}</strong></p>
             <a href="{% url 'upload_material' %}" class="nav-link" style="color: #a29bfe; font-weight: bold;">
                 <i class="fas fa-upload"></i> Subir Novo Material
@@ -63,11 +63,18 @@
                     {% for material in materiais %}
                     <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
                         <td style="padding: 15px; color: #ffffff !important;">
-                            {% if ".mp4" in material.arquivo.name|lower %}
-                                <i class="fas fa-video" style="color: #a29bfe; margin-right: 8px;"></i>
-                            {% else %}
-                                <i class="fas fa-file-pdf" style="color: #ff4757; margin-right: 8px;"></i>
-                            {% endif %}
+                            {# LOGICA DE ÍCONES POR EXTENSÃO #}
+                            {% with ext=material.arquivo.name|lower %}
+                                {% if ".mp4" in ext or ".mov" in ext or ".webm" in ext %}
+                                    <i class="fas fa-video" style="color: #a29bfe; margin-right: 8px;" title="Vídeo"></i>
+                                {% elif ".pdf" in ext %}
+                                    <i class="fas fa-file-pdf" style="color: #ff4757; margin-right: 8px;" title="PDF"></i>
+                                {% elif ".jpg" in ext or ".jpeg" in ext or ".png" in ext or ".webp" in ext %}
+                                    <i class="fas fa-image" style="color: #00d2d3; margin-right: 8px;" title="Imagem"></i>
+                                {% else %}
+                                    <i class="fas fa-file" style="color: #ccc; margin-right: 8px;" title="Arquivo"></i>
+                                {% endif %}
+                            {% endwith %}
                             {{ material.titulo }}
                         </td>
                         <td style="padding: 15px; color: #ffffff !important;">

@@ -19,10 +19,15 @@
                     {# --- LOOP DE MATERIAIS DO MÓDULO --- #}
                     {% for material in modulo.materiais.all %}
                         <div class="glass-card" style="padding: 20px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            {% with ext=material.arquivo.name|lower %}
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                                 <div style="display: flex; align-items: center; gap: 15px;">
-                                    {% if ".mp4" in material.arquivo.name|lower or ".mov" in material.arquivo.name|lower %}
+                                    {# ÍCONES DINÂMICOS #}
+                                    {% if ".mp4" in ext or ".mov" in ext or ".webm" in ext %}
                                         <i class="fas fa-file-video" style="font-size: 2rem; color: {{ curso.cor_neon }};"></i>
+                                    {% elif ".jpg" in ext or ".jpeg" in ext or ".png" in ext or ".webp" in ext %}
+                                        <i class="fas fa-file-image" style="font-size: 2rem; color: #00d2d3;"></i>
                                     {% else %}
                                         <i class="fas fa-file-pdf" style="font-size: 2rem; color: #ff4757;"></i>
                                     {% endif %}
@@ -33,33 +38,48 @@
                                     </div>
                                 </div>
 
-                                {% if not ".mp4" in material.arquivo.name|lower and not ".mov" in material.arquivo.name|lower %}
+                                {# BOTÃO DE DOWNLOAD (Não aparece para vídeos, mas aparece para imagens e PDFs) #}
+                                {% if not ".mp4" in ext and not ".mov" in ext %}
                                     <a href="{{ material.arquivo.url }}" target="_blank" class="btn-entrar" 
                                        style="text-decoration: none; font-size: 0.8rem; padding: 8px 15px; background: {{ curso.cor_neon }}; border: none;">
-                                        <i class="fas fa-download"></i> BAIXAR PDF
+                                        <i class="fas fa-download"></i> BAIXAR {% if ".jpg" in ext or ".png" in ext %}IMAGEM{% else %}PDF{% endif %}
                                     </a>
                                 {% endif %}
                             </div>
 
                             {# AREA DO PLAYER DE VÍDEO #}
-                            {% if ".mp4" in material.arquivo.name|lower or ".mov" in material.arquivo.name|lower %}
-                                <div class="video-container">
-                                    <video controls controlsList="nodownload" poster="{% static 'cursos/img/logo.png' %}" style="width: 100%; border-radius: 8px;">
+                            {% if ".mp4" in ext or ".mov" in ext or ".webm" in ext %}
+                                <div class="video-container" style="background: #000; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                                    <video controls controlsList="nodownload" style="width: 100%; display: block;">
                                         <source src="{{ material.arquivo.url }}" type="video/mp4">
                                         Seu navegador não suporta a reprodução de vídeos.
                                     </video>
                                 </div>
+                            
+                            {# VISUALIZADOR DE IMAGEM (NOVO!) #}
+                            {% elif ".jpg" in ext or ".jpeg" in ext or ".png" in ext or ".webp" in ext %}
+                                <div style="text-align: center; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 10px; border: 1px solid rgba(255,255,255,0.05);">
+                                    <img src="{{ material.arquivo.url }}" alt="{{ material.titulo }}" 
+                                         style="max-width: 100%; max-height: 500px; border-radius: 8px; cursor: pointer;"
+                                         onclick="window.open(this.src, '_blank')">
+                                    <p style="color: #666; font-size: 0.8rem; margin-top: 8px;">Clique na imagem para ampliar</p>
+                                </div>
                             {% endif %}
+                            
+                            {% endwith %}
                         </div>
                     {% empty %}
                         <p style="color: #555; font-style: italic; margin-left: 20px;">Nenhum material neste módulo.</p>
                     {% endfor %}
 
-                    {# --- LOOP DE AULAS (TEXTO/VIDEO URL) --- #}
+                    {# --- LOOP DE AULAS (Aulas antigas/Texto) --- #}
                     {% for aula in modulo.aulas.all %}
-                        <div class="glass-card" style="padding: 15px; border-left: 2px solid {{ curso.cor_neon }};">
-                            <h4 style="margin: 0; color: #ddd;">🎬 Aula: {{ aula.titulo }}</h4>
-                            </div>
+                        <div class="glass-card" style="padding: 15px; border-left: 2px solid {{ curso.cor_neon }}; background: rgba(255,255,255,0.02);">
+                            <h4 style="margin: 0; color: #ddd; font-weight: normal;">
+                                <i class="fas fa-chalkboard-teacher" style="margin-right: 10px; color: {{ curso.cor_neon }};"></i> 
+                                Aula: {{ aula.titulo }}
+                            </h4>
+                        </div>
                     {% endfor %}
                 </div>
             </div>
@@ -70,9 +90,9 @@
         {% endfor %}
     </div>
 
-    <br>
-    <a href="{% url 'index' %}" style="color: {{ curso.cor_neon }}; text-decoration: none; font-weight: bold;">
-        ← Voltar aos meus cursos
+    <br><br>
+    <a href="{% url 'index' %}" style="color: {{ curso.cor_neon }}; text-decoration: none; font-weight: bold; transition: 0.3s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+        <i class="fas fa-chevron-left"></i> Voltar aos meus cursos
     </a>
 </div>
 {% endblock %}

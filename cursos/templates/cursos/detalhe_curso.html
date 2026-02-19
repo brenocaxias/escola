@@ -24,34 +24,34 @@
                                 <div style="display: flex; align-items: center; gap: 15px;">
                                     
                                     {# --- ÍCONES DINÂMICOS --- #}
+                                    {# Forçamos a lógica de ícone a respeitar o nome do arquivo se o Cloudinary errar #}
                                     {% if material.tipo_arquivo == 'video' %}
                                         <i class="fas fa-file-video" style="font-size: 2rem; color: {{ curso.cor_neon }};"></i>
+                                    {% elif material.tipo_arquivo == 'pdf' or ".pdf" in material.arquivo.name|lower %}
+                                        <i class="fas fa-file-pdf" style="font-size: 2rem; color: #ff4757;"></i>
                                     {% elif material.tipo_arquivo == 'imagem' %}
                                         <i class="fas fa-file-image" style="font-size: 2rem; color: #00d2d3;"></i>
-                                    {% elif material.tipo_arquivo == 'pdf' %}
-                                        <i class="fas fa-file-pdf" style="font-size: 2rem; color: #ff4757;"></i>
                                     {% else %}
                                         <i class="fas fa-file-alt" style="font-size: 2rem; color: #aaa;"></i>
                                     {% endif %}
                                     
                                     <div>
                                         <h3 style="margin: 0; font-size: 1.1rem; color: #eee;">{{ material.titulo }}</h3>
-                                        <p style="color: yellow; font-size: 10px;">
-                                        DEBUG -> Tipo detectado: {{ material.tipo_arquivo }} | URL: {{ material.arquivo.url }}</p>
                                         <small style="color: #666;">Enviado em: {{ material.data_upload|date:"d/m/Y" }}</small>
                                     </div>
                                 </div>
 
-                                {# BOTÃO DE DOWNLOAD (Não aparece para vídeos) #}
+                                {# BOTÃO DE DOWNLOAD #}
                                 {% if material.tipo_arquivo != 'video' %}
                                     <a href="{{ material.arquivo.url }}" target="_blank" class="btn-entrar" 
                                        style="text-decoration: none; font-size: 0.8rem; padding: 8px 15px; background: {{ curso.cor_neon }}; border: none;">
-                                        <i class="fas fa-download"></i> BAIXAR {{ material.tipo_arquivo|upper }}
+                                        <i class="fas fa-download"></i> BAIXAR {% if ".pdf" in material.arquivo.name|lower %}PDF{% else %}{{ material.tipo_arquivo|upper }}{% endif %}
                                     </a>
                                 {% endif %}
                             </div>
 
-                            {# --- ÁREA DE EXIBIÇÃO CORRIGIDA --- #}
+                            {# --- ÁREA DE EXIBIÇÃO CORRIGIDA COM TRAVA DE SEGURANÇA --- #}
+                            
                             {% if material.tipo_arquivo == 'video' %}
                                 <div class="video-container" style="background: #000; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
                                     <video controls controlsList="nodownload" style="width: 100%; display: block;">
@@ -60,7 +60,8 @@
                                     </video>
                                 </div>
                             
-                            {% elif material.tipo_arquivo == 'imagem' %}
+                            {# A TRAVA: Só entra aqui se o tipo for imagem E o nome do arquivo NÃO tiver ".pdf" #}
+                            {% elif material.tipo_arquivo == 'imagem' and ".pdf" not in material.arquivo.name|lower %}
                                 <div style="text-align: center; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 10px; border: 1px solid rgba(255,255,255,0.05);">
                                     <img src="{{ material.arquivo.url }}" alt="{{ material.titulo }}" 
                                          style="max-width: 100%; max-height: 500px; border-radius: 8px; cursor: pointer;"
@@ -68,12 +69,13 @@
                                     <p style="color: #666; font-size: 0.8rem; margin-top: 8px;">Clique na imagem para ampliar</p>
                                 </div>
 
-                            {% elif material.tipo_arquivo == 'pdf' %}
+                            {# SE FOR PDF OU SE O CLOUDINARY TENTOU FINGIR QUE O PDF É IMAGEM #}
+                            {% else %}
                                 <div style="display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 30px; border: 1px dashed rgba(255,255,255,0.2);">
                                     <div style="text-align: center;">
                                         <i class="fas fa-file-pdf" style="font-size: 3rem; color: #ff4757; margin-bottom: 15px;"></i>
                                         <p style="color: #ddd; margin-bottom: 15px;">Documento PDF disponível</p>
-                                        <a href="{{ material.arquivo.url }}" target="_blank" style="color: #fff; text-decoration: none; background: #ff4757; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
+                                        <a href="{{ material.arquivo.url }}" target="_blank" style="color: #fff; text-decoration: none; background: #ff4757; padding: 10px 20px; border-radius: 5px; font-weight: bold; box-shadow: 0 4px 15px rgba(255,71,87,0.3);">
                                             VISUALIZAR MATERIAL
                                         </a>
                                     </div>

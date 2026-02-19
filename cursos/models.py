@@ -49,27 +49,32 @@ class Material(models.Model):
 
     @property
     def tipo_arquivo(self):
+        # 1. Pegamos o nome do arquivo como ele foi salvo no banco (geralmente guarda a extensão original)
+        nome_banco = str(self.arquivo.name).lower()
+        
+        # 2. Pegamos a URL para checar se o Cloudinary já marcou como vídeo
+        url_completa = ""
         try:
-            # Pega a URL completa que o Cloudinary gera
-            url = self.arquivo.url.lower()
-            nome_no_banco = str(self.arquivo.name).lower()
-            
-            # 1. PRIORIDADE MÁXIMA: Se tiver "pdf" em qualquer lugar, É PDF.
-            if 'pdf' in url or 'pdf' in nome_no_banco:
-                return 'pdf'
-                
-            # 2. VÍDEOS:
-            if any(ext in url for ext in ['.mp4', '.mov', '.webm']) or '/video/' in url:
-                return 'video'
-                
-            # 3. IMAGENS: Só vai chegar aqui se não for PDF nem Vídeo
-            if any(ext in url for ext in ['.jpg', '.jpeg', '.png', '.webp']) or '/image/' in url:
-                return 'imagem'
-                
-        except Exception as e:
-            print(f"Erro ao identificar arquivo: {e}")
-            
-        return 'pdf' # Se tudo falhar, assume PDF (que é o mais comum para materiais)
+            url_completa = self.arquivo.url.lower()
+        except:
+            pass
+
+        # LÓGICA DE PRIORIDADE
+        # Se tiver extensões de vídeo ou /video/ na URL
+        if any(ext in nome_banco for ext in ['.mp4', '.mov', '.webm']) or '/video/' in url_completa:
+            return 'video'
+        
+        # Se tiver extensões de imagem ou /image/ na URL
+        # MAS, precisamos garantir que não seja um PDF que o Cloudinary "fingiu" ser imagem
+        if any(ext in nome_banco for ext in ['.jpg', '.jpeg', '.png', '.webp']):
+            return 'imagem'
+
+        # Se o nome no banco contiver 'pdf' ou se nada acima bater, 
+        # para materiais didáticos, o porto seguro é ser PDF/Arquivo
+        if 'pdf' in nome_banco or 'pdf' in url_completa:
+            return 'pdf'
+
+        return 'pdf'
 
 class Aluno(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

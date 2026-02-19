@@ -29,43 +29,43 @@
         text-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
 
-    /* --- SEÇÃO MAESTRO --- */
-    .maestro-container {
+    /* --- ESTILO DAS SEÇÕES SOBRE --- */
+    .info-card {
+        padding: 60px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 204, 0, 0.2);
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+        margin-bottom: 40px;
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
         gap: 60px;
-        padding: 60px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 204, 0, 0.3);
-        border-radius: 20px;
-        backdrop-filter: blur(10px);
     }
 
-    .maestro-texto {
-        flex: 1.2; /* Dá um pouco mais de espaço para o texto */
+    .sobre-texto, .maestro-texto {
+        flex: 1.2;
     }
 
-    .maestro-texto p {
+    .sobre-texto p, .maestro-texto p {
         line-height: 2; 
         font-size: 1.2rem; 
         color: #eee; 
         margin-bottom: 20px;
         text-align: justify;
-        hyphens: auto;
     }
 
-    .maestro-foto-wrapper {
-        flex: 1; /* Aumentado para a foto ter mais espaço no PC */
+    .foto-wrapper {
+        flex: 1;
         display: flex;
         justify-content: center;
         align-items: center;
     }
 
-    .maestro-foto {
+    .foto-estilizada {
         width: 100%;
-        max-width: 500px; /* Aumentei o limite de 400px para 500px */
+        max-width: 500px;
         height: auto;
         border-radius: 20px;
         border: 4px solid #ffcc00;
@@ -73,9 +73,22 @@
         transition: 0.4s;
     }
 
-    .maestro-foto:hover { transform: scale(1.03); }
+    .foto-estilizada:hover { transform: scale(1.03); }
 
-    /* --- GALERIA MOMENTOS EMG --- */
+    /* --- EFEITO SCROLL REVEAL --- */
+    .reveal {
+        position: relative;
+        transform: translateY(60px);
+        opacity: 0;
+        transition: all 1s ease-out;
+    }
+
+    .reveal.active {
+        transform: translateY(0px);
+        opacity: 1;
+    }
+
+    /* --- GALERIA --- */
     .foto-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 350px));
@@ -93,79 +106,49 @@
         transition: 0.4s;
     }
 
-    .foto-item:hover { 
-        transform: translateY(-10px); 
-        border-color: #ffcc00; 
-    }
-
     .foto-img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
     
-    /* Links do Rodapé */
-    .footer-link {
-        color: #aaa;
-        font-size: 1.6rem;
-        transition: 0.3s;
-        text-decoration: none;
-    }
-    .footer-link:hover {
-        color: #ffcc00;
-        transform: translateY(-3px);
-    }
-
-    /* --- REGRAS PARA CELULAR (MOBILE) --- */
+    /* --- RESPONSIVIDADE --- */
     @media (max-width: 992px) {
         .section-padding { padding: 40px 5%; }
-        
-        .hero { padding: 100px 20px; }
         .hero h1 { font-size: 2.5rem; }
         .hero p { font-size: 1.2rem; }
-
-        .maestro-container { 
-            flex-direction: column-reverse; 
-            text-align: center; 
-            padding: 30px 20px;
-            gap: 30px;
-        }
-
-        .maestro-texto { text-align: center; flex: 1; }
-        .maestro-texto h2 { font-size: 2.2rem; }
-        
-        .maestro-texto p {
-            text-align: center; 
-        }
-
-        .maestro-foto-wrapper {
-            flex: 1;
-            width: 100%;
-        }
-
-        .maestro-foto {
-            max-width: 300px; /* Foto menor no celular para não ocupar a tela toda */
-        }
-
-        .footer-content {
-            flex-direction: column;
+        .info-card { 
+            padding: 30px 20px; 
+            flex-direction: column !important; /* Força empilhamento no mobile */
             text-align: center;
         }
-
-        .footer-socials {
-            justify-content: center !important;
-            margin-top: 15px;
-        }
-
-        .footer-dev { text-align: center !important; }
+        .sobre-texto p, .maestro-texto p { text-align: center; }
+        .foto-estilizada { max-width: 300px; }
     }
 </style>
 
 <section class="hero">
-    <h1>Escola de Música Groaíras</h1>
+    <h1>Escola de Música de Groaíras</h1>
     <p>A arte de tocar, o prazer de aprender.</p>
 </section>
 
 <section id="sobre" class="section-padding">
-    <div class="glass-card maestro-container">
+    
+    <div class="info-card reveal" style="flex-direction: row-reverse;">
+        <div class="sobre-texto">
+            <h2 style="color: #ffcc00; margin-bottom: 25px; font-size: 2.8rem;">QUEM SOMOS</h2>
+            <p>
+                Criada em 2022, como uma iniciativa da Banda Municipal de Groaíras, a Escola de Música tornou-se um espaço de referência na democratização do ensino musical no município. 
+                Em um cenário marcado por altos índices de criminalidade e escassez de oportunidades para a juventude, a escola desempenha um papel transformador, oferecendo novos caminhos e retirando jovens e adolescentes da ociosidade. Atualmente, quase 200 alunos participam de suas atividades. 
+            </p>
+            <p>
+                A Escola possui Núcleo de Sopros, Cordas, Teclas, Prática de grupos coletivos e performances, proporcionando aos estudantes uma vivência completa e enriquecedora no universo musical. 
+            </p>
+        </div>
+        <div class="foto-wrapper">
+            <img src="{% static 'cursos/img/quemsomos.jpeg' %}" alt="Alunos da EMG" class="foto-estilizada">
+        </div>
+    </div>
+
+    <div class="info-card reveal">
         <div class="maestro-texto">
-            <h2 style="color: #ffcc00; margin-bottom: 25px; font-size: 2.8rem;">O Maestro</h2>
+            <h2 style="color: #ffcc00; margin-bottom: 25px; font-size: 2.8rem;">DIREÇÃO</h2>
             <p>
                 Sob a regência e coordenação do Maestro <strong>Tiago Vasconcelos</strong>, 
                 a <strong>Banda Municipal de Groaíras</strong> vem transformando vidas através da música. 
@@ -175,14 +158,13 @@
                 "Nossa missão é formar não apenas músicos, mas cidadãos que compreendam a harmonia da vida através da arte."
             </p>
         </div>
-
-        <div class="maestro-foto-wrapper">
-            <img src="{% static 'cursos/img/maestro.png' %}" alt="Maestro Tiago Vasconcelos" class="maestro-foto">
+        <div class="foto-wrapper">
+            <img src="{% static 'cursos/img/maestro.png' %}" alt="Maestro Tiago Vasconcelos" class="foto-estilizada">
         </div>
     </div>
 </section>
 
-<section id="galeria" class="section-padding" style="background: rgba(0,0,0,0.3);">
+<section id="galeria" class="section-padding reveal" style="background: rgba(0,0,0,0.3);">
     <div style="text-align: center; margin-bottom: 40px;">
         <h2 style="color: #fff; font-size: 3rem;">Momentos EMG</h2>
         <div style="width: 80px; height: 4px; background: #ffcc00; margin: 20px auto;"></div>
@@ -200,40 +182,24 @@
                     <small style="color: #ffcc00;">{{ foto.data_postagem|date:"d/m/Y" }}</small>
                 </div>
             </div>
-        {% empty %}
-            <div style="grid-column: 1 / -1; text-align: center; color: #666;">A vitrine está sendo preparada.</div>
         {% endfor %}
     </div>
 </section>
 
-<footer style="background: rgba(10, 10, 20, 0.95); padding: 40px 10%; border-top: 1px solid rgba(255, 204, 0, 0.2);">
-    <div class="footer-content" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 30px;">
-        
-        <div>
-            <h4 style="color: #ffcc00; margin-bottom: 5px; font-size: 1.3rem;">EMG</h4>
-            <p style="color: #777; font-size: 0.9rem;">Escola de Música Groaíras</p>
-        </div>
+<script>
+    function reveal() {
+        var reveals = document.querySelectorAll(".reveal");
+        for (var i = 0; i < reveals.length; i++) {
+            var windowHeight = window.innerHeight;
+            var elementTop = reveals[i].getBoundingClientRect().top;
+            var elementVisible = 150;
+            if (elementTop < windowHeight - elementVisible) {
+                reveals[i].classList.add("active");
+            }
+        }
+    }
+    window.addEventListener("scroll", reveal);
+    document.addEventListener("DOMContentLoaded", reveal);
+</script>
 
-        <div class="footer-dev" style="text-align: right;">
-            <p style="color: #eee; font-size: 1rem; margin-bottom: 12px;">
-                Desenvolvido por <span style="color: #ffcc00; font-weight: bold;">Breno Caxias</span>
-            </p>
-            <div class="footer-socials" style="display: flex; gap: 20px; justify-content: flex-end;">
-                <a href="https://github.com/brenocaxias" target="_blank" class="footer-link" title="Meu GitHub">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a href="https://instagram.com/brenocaxias" target="_blank" class="footer-link" title="Meu Instagram">
-                    <i class="fab fa-instagram"></i>
-                </a>
-                <a href="https://www.instagram.com/escolademusica_groairas/" target="_blank" class="footer-link" style="color: #ff8c00;" title="Instagram da EMG">
-                    <i class="fas fa-university"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div style="text-align: center; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
-        <small style="color: #444;">&copy; 2026 Todos os direitos reservados à Escola de Música Groaíras.</small>
-    </div>
-</footer>
 {% endblock %}

@@ -49,28 +49,26 @@ class Material(models.Model):
 
     @property
     def tipo_arquivo(self):
-        nome_no_banco = str(self.arquivo.name).lower()
-        
-        # 1. TESTE PELO NOME DO BANCO (Mais confiável para PDF)
-        if 'pdf' in nome_no_banco:
-            return 'pdf'
-        if any(ext in nome_no_banco for ext in ['.mp4', '.mov', '.webm']):
-            return 'video'
-        if any(ext in nome_no_banco for ext in ['.jpg', '.jpeg', '.png', '.webp']):
-            return 'imagem'
-
-        # 2. TESTE PELA URL (Caso o Cloudinary tenha limpado o nome)
         try:
-            url_completa = self.arquivo.url.lower()
-            if '/video/' in url_completa:
+            # Pega a URL completa que o Cloudinary gera
+            url = self.arquivo.url.lower()
+            nome_no_banco = str(self.arquivo.name).lower()
+            
+            # 1. PRIORIDADE MÁXIMA: Se tiver "pdf" em qualquer lugar, É PDF.
+            if 'pdf' in url or 'pdf' in nome_no_banco:
+                return 'pdf'
+                
+            # 2. VÍDEOS:
+            if any(ext in url for ext in ['.mp4', '.mov', '.webm']) or '/video/' in url:
                 return 'video'
-            # Se tem 'image' na URL mas já passou pelo teste do PDF acima, 
-            # ele só chega aqui se não for PDF.
-            if '/image/' in url_completa:
+                
+            # 3. IMAGENS: Só vai chegar aqui se não for PDF nem Vídeo
+            if any(ext in url for ext in ['.jpg', '.jpeg', '.png', '.webp']) or '/image/' in url:
                 return 'imagem'
-        except:
-            pass
-
+                
+        except Exception as e:
+            print(f"Erro ao identificar arquivo: {e}")
+            
         return 'pdf' # Se tudo falhar, assume PDF (que é o mais comum para materiais)
 
 class Aluno(models.Model):

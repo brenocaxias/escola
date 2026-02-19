@@ -14,27 +14,35 @@ class AulaInline(admin.TabularInline):
 
 class MaterialInline(admin.TabularInline):
     model = Material
+    fields = ('titulo', 'arquivo', 'link_externo') # Adicionado campo de link aqui
     extra = 1
 
 # --- CONFIGURAÇÕES DO ADMIN ---
 
 @admin.register(Curso)
 class CursoAdmin(admin.ModelAdmin):
-    # Unificamos as duas definições que você tinha
     list_display = ('nome', 'cor_neon', 'data_criacao')
     prepopulated_fields = {'slug': ('nome',)}
-    inlines = [ModuloInline] # Agora você cria módulos dentro do curso
+    inlines = [ModuloInline]
 
 @admin.register(Modulo)
 class ModuloAdmin(admin.ModelAdmin):
     list_display = ('titulo', 'curso', 'ordem')
     list_filter = ('curso',)
-    inlines = [AulaInline, MaterialInline] # Agora você cria aulas/materiais dentro do módulo
+    inlines = [AulaInline, MaterialInline]
+
+@admin.register(Material)
+class MaterialAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'modulo', 'tipo_arquivo', 'data_upload')
+    list_filter = ('modulo__curso', 'modulo')
+    search_fields = ('titulo',)
+    # Organiza os campos no formulário de edição individual
+    fields = ('modulo', 'titulo', 'arquivo', 'link_externo')
 
 @admin.register(Aluno)
 class AlunoAdmin(admin.ModelAdmin):
     list_display = ('user', 'get_cursos')
-    search_fields = ('user__username', 'user__first_name') # Corrigi o erro de digitação aqui (user__first)
+    search_fields = ('user__username', 'user__first_name', 'user__email')
     filter_horizontal = ('cursos_matriculados',)
     
     def get_cursos(self, obj):
@@ -47,4 +55,3 @@ class GaleriaAdmin(admin.ModelAdmin):
 
 # Registros individuais (opcionais, mas úteis)
 admin.site.register(Aula)
-admin.site.register(Material)

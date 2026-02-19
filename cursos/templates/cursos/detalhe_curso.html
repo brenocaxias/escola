@@ -24,7 +24,7 @@
                                         <i class="fab fa-youtube" style="font-size: 1.8rem; color: #ff0000;"></i>
                                     {% elif material.tipo_arquivo == 'video' %}
                                         <i class="fas fa-play-circle" style="font-size: 1.8rem; color: {{ curso.cor_neon }};"></i>
-                                    {% elif material.tipo_arquivo == 'pdf' or ".pdf" in material.arquivo.name|lower %}
+                                    {% elif material.tipo_arquivo == 'pdf' %}
                                         <i class="fas fa-file-pdf" style="font-size: 1.8rem; color: #ff4757;"></i>
                                     {% else %}
                                         <i class="fas fa-image" style="font-size: 1.8rem; color: #00d2d3;"></i>
@@ -33,19 +33,19 @@
                                 </div>
 
                                 <div style="display: flex; gap: 10px;">
-                                    {# BOTÃO DE DOWNLOAD (Apenas para arquivos reais) #}
                                     {% if material.arquivo %}
-                                        <a href="{{ material.arquivo.url }}" download="{{ material.titulo }}" class="btn-entrar" 
+                                        {# Forçamos o download para evitar que o navegador tente abrir a 'imagem' do PDF #}
+                                        <a href="{{ material.arquivo.url }}" download class="btn-entrar" 
                                            style="text-decoration: none; font-size: 0.75rem; padding: 7px 12px; background: rgba(255,255,255,0.1); border: 1px solid {{ curso.cor_neon }}; color: #fff;">
-                                            <i class="fas fa-download"></i> BAIXAR ARQUIVO
+                                            <i class="fas fa-download"></i> BAIXAR
                                         </a>
                                     {% endif %}
                                     
-                                    {# BOTÃO ABRIR EM NOVA GUIA (Especialmente para PDF) #}
-                                    {% if material.tipo_arquivo == 'pdf' or ".pdf" in material.arquivo.name|lower %}
-                                        <a href="{{ material.arquivo.url }}" target="_blank" class="btn-entrar" 
+                                    {% if material.tipo_arquivo == 'pdf' or material.link_externo %}
+                                        <a href="{% if material.link_externo %}{{ material.link_externo }}{% else %}{{ material.arquivo.url }}{% endif %}" 
+                                           target="_blank" class="btn-entrar" 
                                            style="text-decoration: none; font-size: 0.75rem; padding: 7px 12px; background: {{ curso.cor_neon }}; border: none; color: #000; font-weight: bold;">
-                                            <i class="fas fa-external-link-alt"></i> VER EM TELA CHEIA
+                                            <i class="fas fa-external-link-alt"></i> ABRIR
                                         </a>
                                     {% endif %}
                                 </div>
@@ -62,28 +62,32 @@
                                                 allowfullscreen></iframe>
                                     </div>
 
-                                {# 2. VÍDEO DO CLOUDINARY #}
+                                {# 2. VÍDEO #}
                                 {% elif material.tipo_arquivo == 'video' %}
                                     <video controls controlsList="nodownload" style="width: 100%; display: block;">
                                         <source src="{{ material.arquivo.url }}" type="video/mp4">
                                         Seu navegador não suporta vídeos.
                                     </video>
 
-                                {# 3. IMAGEM DO CLOUDINARY (Com trava para PDF) #}
-                                {% elif material.tipo_arquivo == 'imagem' and ".pdf" not in material.arquivo.name|lower %}
+                                {# 3. IMAGEM (ESTRITAMENTE IMAGEM) #}
+                                {% elif material.tipo_arquivo == 'imagem' %}
                                     <div style="text-align: center; padding: 10px;">
                                         <img src="{{ material.arquivo.url }}" style="max-width: 100%; max-height: 500px; border-radius: 4px;">
                                     </div>
 
-                                {# 4. PDF (Ou arquivo identificado errado pelo Cloudinary) #}
+                                {# 4. PDF (MOSTRAR PLAYER DE PDF OU BOTÃO) #}
+                                {% elif material.tipo_arquivo == 'pdf' %}
+                                    <div style="height: 500px; width: 100%;">
+                                        {# Usamos <embed> que costuma lidar melhor com PDFs vindo de URLs de armazenamento #}
+                                        <embed src="{{ material.arquivo.url }}" type="application/pdf" width="100%" height="100%" />
+                                    </div>
+
+                                {# 5. OUTROS / FALLBACK #}
                                 {% else %}
                                     <div style="text-align: center; padding: 40px; background: rgba(255,255,255,0.02);">
-                                        <i class="fas fa-file-pdf" style="font-size: 3rem; color: #ff4757; margin-bottom: 15px;"></i>
-                                        <p style="color: #ddd;">Documento pronto para leitura.</p>
-                                        <p style="color: #666; font-size: 0.8rem; margin-bottom: 15px;">(Abertura em nova guia para melhor experiência)</p>
-                                        <a href="{{ material.arquivo.url }}" target="_blank" style="color: #fff; text-decoration: none; background: #ff4757; padding: 10px 20px; border-radius: 5px; font-weight: bold; display: inline-block;">
-                                            VISUALIZAR AGORA
-                                        </a>
+                                        <i class="fas fa-file-alt" style="font-size: 3rem; color: #888; margin-bottom: 15px;"></i>
+                                        <p style="color: #ddd;">Este arquivo não pode ser visualizado aqui.</p>
+                                        <a href="{{ material.arquivo.url }}" target="_blank" style="color: {{ curso.cor_neon }};">Clique aqui para abrir.</a>
                                     </div>
                                 {% endif %}
                             </div>

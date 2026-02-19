@@ -17,7 +17,10 @@ urlpatterns = [
     path('editar-material/<int:material_id>/', views.editar_material, name='editar_material'),
     path('gestao/galeria/', views.gerenciar_galeria, name='gerenciar_galeria'),
     path('gestao/galeria/excluir/<int:foto_id>/', views.excluir_foto, name='excluir_foto'),
+    path('painel/curso/cadastrar/', views.cadastrar_curso, name='cadastrar_curso'),
+    path('painel/modulo/cadastrar/', views.cadastrar_modulo, name='cadastrar_modulo'),
 ]
+
 # ESSA LINHA É O SEGREDO:
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

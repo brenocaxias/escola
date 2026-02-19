@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import user_passes_test, login_required
 from cursos.models import Aluno, Curso, Galeria, Material
-from .forms import CadastroAlunoForm, FotoGaleriaForm, MaterialForm
+from .forms import CadastroAlunoForm, FotoGaleriaForm, MaterialForm, CursoForm, ModuloForm
 from django.contrib.auth.models import User
 def index(request):
     # 1. Se não estiver logado, mostra a vitrine
@@ -48,25 +48,20 @@ def detalhe_curso(request, instrumento_slug):
 @login_required
 @user_passes_test(lambda u: u.is_staff)
 def painel_coordenador(request):
-    # Pegamos o termo de busca da URL (ex: ?search=Breno)
     busca = request.GET.get('search', '')
-    
-    # Filtramos os alunos: busca no username OU no first_name
     if busca:
-        alunos = User.objects.filter(
-            username__icontains=busca
-        ) | User.objects.filter(
-            first_name__icontains=busca
-        )
+        alunos = User.objects.filter(username__icontains=busca) | User.objects.filter(first_name__icontains=busca)
     else:
         alunos = User.objects.all()
 
     materiais = Material.objects.all().order_by('-data_upload')
-    
+    cursos = Curso.objects.all() # <-- ADICIONADO: Puxa os cursos para a lista
+
     return render(request, 'cursos/painel_coordenador.html', {
         'alunos': alunos,
         'materiais': materiais,
-        'busca': busca # Devolvemos o termo para o campo não limpar
+        'cursos': cursos, # <-- ADICIONADO
+        'busca': busca 
     })
 def login_sucesso(request):
     if request.user.is_superuser:
@@ -190,3 +185,26 @@ def home(request):
     
     # 3. Renderizamos o template com os dados
     return render(request, 'cursos/home.html', contexto)
+# 2. Crie a view de cadastro de curso
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def cadastrar_curso(request):
+    if request.method == 'POST':
+        form = CursoForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('painel_coordenador')
+    else:
+        form = CursoForm()
+    return render(request, 'cursos/cadastrar_curso.html', {'form': form})
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def cadastrar_modulo(request):
+    if request.method == 'POST':
+        form = ModuloForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('painel_coordenador')
+    else:
+        form = ModuloForm()
+    return render(request, 'cursos/cadastrar_modulo.html', {'form': form})

@@ -1,20 +1,20 @@
 {% extends 'cursos/base.html' %}
 
 {% block conteudo %}
-<div class="main-container" style="display: flex; justify-content: center; align-items: center; min-height: 80vh; padding: 20px;">
+<div class="main-container" style="display: flex; justify-content: center; align-items: center; min-height: 85vh; padding: 20px;">
     
-    <div class="glass-card" style="padding: 40px; width: 100%; max-width: 600px; text-align: left;">
+    <div class="glass-card" style="padding: 40px; width: 100%; max-width: 600px;">
         
         <div style="text-align: center; margin-bottom: 30px;">
             <h2 style="color: #a29bfe; margin-bottom: 10px;">
-                <i class="fas fa-cloud-upload-alt"></i> Subir Material Didático
+                <i class="fas fa-layer-group"></i> Criar Novo Módulo
             </h2>
             <p style="color: #888; font-size: 0.9rem;">
-                PDFs, Partituras ou Vídeos (MP4)
+                Defina uma etapa para organizar os materiais didáticos.
             </p>
         </div>
 
-        <form method="post" enctype="multipart/form-data">
+        <form method="post">
             {% csrf_token %}
 
             {% for field in form %}
@@ -34,32 +34,42 @@
                 </div>
             {% endfor %}
 
-            <button type="submit" class="btn-entrar" style="width: 100%; margin-top: 10px; padding: 15px; font-size: 1rem; letter-spacing: 1px;">
-                <i class="fas fa-check"></i> PUBLICAR MATERIAL
+            <button type="submit" class="btn-entrar" style="width: 100%; margin-top: 10px; padding: 15px; font-size: 1rem;">
+                <i class="fas fa-save"></i> CADASTRAR MÓDULO
             </button>
         </form>
 
         <div style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; text-align: center;">
             <a href="{% url 'painel_coordenador' %}" style="color: #aaa; text-decoration: none; font-size: 0.9rem; transition: 0.3s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">
-                <i class="fas fa-arrow-left"></i> Voltar ao Painel de Gestão
+                <i class="fas fa-arrow-left"></i> Voltar ao Painel
             </a>
         </div>
     </div>
 </div>
 
 <style>
-    /* Estilização extra para garantir que os inputs de arquivo e selects fiquem perfeitos */
-    input[type="file"].input-glass {
-        padding: 8px !important;
-    }
-    
+    /* Estilo para o campo Select do Curso */
     select.input-glass {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        padding: 12px 15px !important;
+        color: white !important;
+        outline: none !important;
         cursor: pointer;
     }
 
     select.input-glass option {
-        background: #1e1e26; /* Cor escura para o dropdown não ficar branco */
+        background: #1e1e26;
         color: #fff;
+    }
+
+    /* Estilo para a Área de Texto (Descrição) */
+    textarea.input-glass {
+        width: 100%;
+        min-height: 100px;
+        resize: vertical;
     }
 </style>
 {% endblock %}

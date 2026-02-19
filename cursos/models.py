@@ -49,21 +49,34 @@ class Material(models.Model):
 
     @property
     def tipo_arquivo(self):
-        nome = str(self.arquivo.name).lower() # Forçamos virar string e minúsculo
+        nome = str(self.arquivo.name).lower()
         
-        # Lista de extensões para cada tipo
-        video_exts = ['.mp4', '.mov', '.webm', '.avi', '.m4v']
-        img_exts = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp']
+        # Se o Cloudinary removeu a extensão, ele armazena o tipo internamente.
+        # Mas como o Django FileField só guarda a string do caminho, 
+        # vamos checar se existem palavras-chave ou usar o metadado do Cloudinary se disponível.
         
-        # Verificação manual (mais segura para URLs de nuvem)
-        if any(nome.endswith(ext) for ext in video_exts):
+        # 1. Tenta ver se a extensão ainda está lá (caso de alguns arquivos)
+        if any(nome.endswith(ext) for ext in ['.mp4', '.mov', '.webm']):
             return 'video'
-        elif any(nome.endswith(ext) for ext in img_exts):
+        if any(nome.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp']):
             return 'imagem'
-        elif nome.endswith('.pdf'):
+        if nome.endswith('.pdf'):
             return 'pdf'
-        
-        return 'outro'
+
+        # 2. Se não tem extensão (o seu caso!), vamos verificar o 'url' do arquivo
+        # O Cloudinary geralmente coloca /video/ ou /image/ na URL
+        try:
+            url = self.arquivo.url.lower()
+            if '/video/' in url:
+                return 'video'
+            if '/image/' in url:
+                return 'imagem'
+            if '/raw/' in url or '.pdf' in url:
+                return 'pdf'
+        except:
+            pass
+
+        return 'pdf' # Padrão se nada funcionar
 
 class Aluno(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

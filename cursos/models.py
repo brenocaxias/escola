@@ -49,20 +49,21 @@ class Material(models.Model):
 
     @property
     def tipo_arquivo(self):
-        # Pega a extensão real do arquivo
-        ext = os.path.splitext(self.arquivo.name)[1].lower()
+        nome = str(self.arquivo.name).lower() # Forçamos virar string e minúsculo
         
-        if ext in ['.mp4', '.mov', '.webm', '.avi']:
+        # Lista de extensões para cada tipo
+        video_exts = ['.mp4', '.mov', '.webm', '.avi', '.m4v']
+        img_exts = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp']
+        
+        # Verificação manual (mais segura para URLs de nuvem)
+        if any(nome.endswith(ext) for ext in video_exts):
             return 'video'
-        elif ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']:
+        elif any(nome.endswith(ext) for ext in img_exts):
             return 'imagem'
-        elif ext == '.pdf':
+        elif nome.endswith('.pdf'):
             return 'pdf'
+        
         return 'outro'
-
-    @property
-    def is_video(self):
-        return self.tipo_arquivo == 'video'
 
 class Aluno(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

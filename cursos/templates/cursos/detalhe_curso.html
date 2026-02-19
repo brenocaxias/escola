@@ -13,7 +13,6 @@
             <div class="modulo-section">
                 <h2 style="color: #fff; font-size: 1.4rem; margin-bottom: 15px; border-left: 4px solid {{ curso.cor_neon }}; padding-left: 15px;">
                     {{ modulo.titulo }}
-    
                 </h2>
 
                 <div style="display: grid; gap: 20px;">
@@ -24,7 +23,7 @@
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                                 <div style="display: flex; align-items: center; gap: 15px;">
                                     
-                                    {# --- ÍCONES USANDO A PROPERTY TIPO_ARQUIVO DO SEU MODEL --- #}
+                                    {# --- ÍCONES DINÂMICOS --- #}
                                     {% if material.tipo_arquivo == 'video' %}
                                         <i class="fas fa-file-video" style="font-size: 2rem; color: {{ curso.cor_neon }};"></i>
                                     {% elif material.tipo_arquivo == 'imagem' %}
@@ -32,7 +31,6 @@
                                     {% elif material.tipo_arquivo == 'pdf' %}
                                         <i class="fas fa-file-pdf" style="font-size: 2rem; color: #ff4757;"></i>
                                     {% else %}
-                                        {# Caso caia no 'outro' da sua lógica #}
                                         <i class="fas fa-file-alt" style="font-size: 2rem; color: #aaa;"></i>
                                     {% endif %}
                                     
@@ -51,7 +49,7 @@
                                 {% endif %}
                             </div>
 
-                            {# --- ÁREA DE EXIBIÇÃO --- #}
+                            {# --- ÁREA DE EXIBIÇÃO CORRIGIDA --- #}
                             {% if material.tipo_arquivo == 'video' %}
                                 <div class="video-container" style="background: #000; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
                                     <video controls controlsList="nodownload" style="width: 100%; display: block;">
@@ -67,6 +65,17 @@
                                          onclick="window.open(this.src, '_blank')">
                                     <p style="color: #666; font-size: 0.8rem; margin-top: 8px;">Clique na imagem para ampliar</p>
                                 </div>
+
+                            {% elif material.tipo_arquivo == 'pdf' %}
+                                <div style="display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 30px; border: 1px dashed rgba(255,255,255,0.2);">
+                                    <div style="text-align: center;">
+                                        <i class="fas fa-file-pdf" style="font-size: 3rem; color: #ff4757; margin-bottom: 15px;"></i>
+                                        <p style="color: #ddd; margin-bottom: 15px;">Documento PDF disponível</p>
+                                        <a href="{{ material.arquivo.url }}" target="_blank" style="color: #fff; text-decoration: none; background: #ff4757; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
+                                            VISUALIZAR MATERIAL
+                                        </a>
+                                    </div>
+                                </div>
                             {% endif %}
                             
                         </div>
@@ -74,7 +83,7 @@
                         <p style="color: #555; font-style: italic; margin-left: 20px;">Nenhum material neste módulo.</p>
                     {% endfor %}
 
-                    {# --- LOOP DE AULAS (Aulas antigas/Texto) --- #}
+                    {# --- LOOP DE AULAS --- #}
                     {% for aula in modulo.aulas.all %}
                         <div class="glass-card" style="padding: 15px; border-left: 2px solid {{ curso.cor_neon }}; background: rgba(255,255,255,0.02);">
                             <h4 style="margin: 0; color: #ddd; font-weight: normal;">

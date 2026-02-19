@@ -49,34 +49,29 @@ class Material(models.Model):
 
     @property
     def tipo_arquivo(self):
-        nome = str(self.arquivo.name).lower()
+        nome_no_banco = str(self.arquivo.name).lower()
         
-        # Se o Cloudinary removeu a extensão, ele armazena o tipo internamente.
-        # Mas como o Django FileField só guarda a string do caminho, 
-        # vamos checar se existem palavras-chave ou usar o metadado do Cloudinary se disponível.
-        
-        # 1. Tenta ver se a extensão ainda está lá (caso de alguns arquivos)
-        if any(nome.endswith(ext) for ext in ['.mp4', '.mov', '.webm']):
-            return 'video'
-        if any(nome.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp']):
-            return 'imagem'
-        if nome.endswith('.pdf'):
+        # 1. TESTE PELO NOME DO BANCO (Mais confiável para PDF)
+        if 'pdf' in nome_no_banco:
             return 'pdf'
+        if any(ext in nome_no_banco for ext in ['.mp4', '.mov', '.webm']):
+            return 'video'
+        if any(ext in nome_no_banco for ext in ['.jpg', '.jpeg', '.png', '.webp']):
+            return 'imagem'
 
-        # 2. Se não tem extensão (o seu caso!), vamos verificar o 'url' do arquivo
-        # O Cloudinary geralmente coloca /video/ ou /image/ na URL
+        # 2. TESTE PELA URL (Caso o Cloudinary tenha limpado o nome)
         try:
-            url = self.arquivo.url.lower()
-            if '/video/' in url:
+            url_completa = self.arquivo.url.lower()
+            if '/video/' in url_completa:
                 return 'video'
-            if '/image/' in url:
+            # Se tem 'image' na URL mas já passou pelo teste do PDF acima, 
+            # ele só chega aqui se não for PDF.
+            if '/image/' in url_completa:
                 return 'imagem'
-            if '/raw/' in url or '.pdf' in url:
-                return 'pdf'
         except:
             pass
 
-        return 'pdf' # Padrão se nada funcionar
+        return 'pdf' # Se tudo falhar, assume PDF (que é o mais comum para materiais)
 
 class Aluno(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

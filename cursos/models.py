@@ -45,48 +45,35 @@ class Material(models.Model):
 
     @property
     def tipo_arquivo(self):
-        # 1. Se tem link externo, é link
         if self.link_externo:
             return 'link'
-        
         if not self.arquivo:
             return 'outro'
 
-        # 2. Pegamos o nome real do arquivo (ex: roteiro.pdf)
         nome_arquivo = str(self.arquivo.name).lower()
         url_completa = str(self.arquivo.url).lower()
         
-        # 3. VERIFICAÇÃO BLINDADA: Se termina com .pdf, É PDF (ignora o Cloudinary)
+        # Se for PDF, vamos garantir que a URL não aponte para /image/
         if nome_arquivo.endswith('.pdf') or 'pdf' in url_completa:
             return 'pdf'
         
-        # 4. Verificação de Vídeo
-        extensoes_video = ['.mp4', '.mov', '.webm', '.avi']
-        if any(nome_arquivo.endswith(ext) for ext in extensoes_video) or '/video/' in url_completa:
+        if any(nome_arquivo.endswith(ext) for ext in ['.mp4', '.mov', '.webm']) or '/video/' in url_completa:
             return 'video'
-        
-        # 5. Verificação de Imagem
-        extensoes_img = ['.jpg', '.jpeg', '.png', '.webp', '.gif']
-        if any(nome_arquivo.endswith(ext) for ext in extensoes_img) or '/image/' in url_completa:
-            return 'imagem'
             
+        if any(nome_arquivo.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp']):
+            return 'imagem'
+                
         return 'outro'
 
     @property
-    def embed_url(self):
-        if not self.link_externo:
-            return None
-        
-        url = self.link_externo
-        if 'youtube.com/watch?v=' in url:
-            return url.replace('watch?v=', 'embed/')
-        if 'youtu.be/' in url:
-            video_id = url.split('/')[-1]
-            return f"https://www.youtube.com/embed/{video_id}"
-        if 'drive.google.com' in url:
-            # Garante que o link do drive abra no player interno
-            return url.replace('/view', '/preview').replace('/edit', '/preview')
-        
+    def url_corrigida(self):
+        """Garante que PDFs do Cloudinary sejam tratados como ficheiros e não imagens"""
+        if not self.arquivo:
+            return ""
+        url = self.arquivo.url
+        if self.tipo_arquivo == 'pdf' and '/image/upload/' in url:
+            # Troca 'image' por 'raw' na URL do Cloudinary para PDFs
+            return url.replace('/image/upload/', '/raw/upload/')
         return url
 
 class Aluno(models.Model):

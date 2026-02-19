@@ -34,18 +34,19 @@
 
                                 <div style="display: flex; gap: 10px;">
                                     {% if material.arquivo %}
-                                        {# Forçamos o download para evitar que o navegador tente abrir a 'imagem' do PDF #}
-                                        <a href="{{ material.arquivo.url }}" download class="btn-entrar" 
+                                        {# Usamos url_corrigida para garantir o download do arquivo real #}
+                                        <a href="{{ material.url_corrigida }}" download class="btn-entrar" 
                                            style="text-decoration: none; font-size: 0.75rem; padding: 7px 12px; background: rgba(255,255,255,0.1); border: 1px solid {{ curso.cor_neon }}; color: #fff;">
                                             <i class="fas fa-download"></i> BAIXAR
                                         </a>
                                     {% endif %}
                                     
                                     {% if material.tipo_arquivo == 'pdf' or material.link_externo %}
-                                        <a href="{% if material.link_externo %}{{ material.link_externo }}{% else %}{{ material.arquivo.url }}{% endif %}" 
+                                        {# Botão ABRIR redireciona para o link externo ou para a URL corrigida do PDF #}
+                                        <a href="{% if material.link_externo %}{{ material.link_externo }}{% else %}{{ material.url_corrigida }}{% endif %}" 
                                            target="_blank" class="btn-entrar" 
                                            style="text-decoration: none; font-size: 0.75rem; padding: 7px 12px; background: {{ curso.cor_neon }}; border: none; color: #000; font-weight: bold;">
-                                            <i class="fas fa-external-link-alt"></i> ABRIR
+                                            <i class="fas fa-external-link-alt"></i> ABRIR EM NOVA ABA
                                         </a>
                                     {% endif %}
                                 </div>
@@ -65,29 +66,31 @@
                                 {# 2. VÍDEO #}
                                 {% elif material.tipo_arquivo == 'video' %}
                                     <video controls controlsList="nodownload" style="width: 100%; display: block;">
-                                        <source src="{{ material.arquivo.url }}" type="video/mp4">
+                                        <source src="{{ material.url_corrigida }}" type="video/mp4">
                                         Seu navegador não suporta vídeos.
                                     </video>
 
-                                {# 3. IMAGEM (ESTRITAMENTE IMAGEM) #}
+                                {# 3. IMAGEM #}
                                 {% elif material.tipo_arquivo == 'imagem' %}
                                     <div style="text-align: center; padding: 10px;">
-                                        <img src="{{ material.arquivo.url }}" style="max-width: 100%; max-height: 500px; border-radius: 4px;">
+                                        <img src="{{ material.url_corrigida }}" style="max-width: 100%; max-height: 500px; border-radius: 4px;">
                                     </div>
 
-                                {# 4. PDF (MOSTRAR PLAYER DE PDF OU BOTÃO) #}
+                                {# 4. PDF (USANDO PLAYER DO GOOGLE PARA EVITAR ERRO DE IMAGEM DO CLOUDINARY) #}
                                 {% elif material.tipo_arquivo == 'pdf' %}
-                                    <div style="height: 500px; width: 100%;">
-                                        {# Usamos <embed> que costuma lidar melhor com PDFs vindo de URLs de armazenamento #}
-                                        <embed src="{{ material.arquivo.url }}" type="application/pdf" width="100%" height="100%" />
+                                    <div style="height: 600px; width: 100%;">
+                                        <iframe src="https://docs.google.com/gview?url={{ material.url_corrigida }}&embedded=true" 
+                                                style="width:100%; height:100%;" frameborder="0"></iframe>
                                     </div>
 
                                 {# 5. OUTROS / FALLBACK #}
                                 {% else %}
                                     <div style="text-align: center; padding: 40px; background: rgba(255,255,255,0.02);">
                                         <i class="fas fa-file-alt" style="font-size: 3rem; color: #888; margin-bottom: 15px;"></i>
-                                        <p style="color: #ddd;">Este arquivo não pode ser visualizado aqui.</p>
-                                        <a href="{{ material.arquivo.url }}" target="_blank" style="color: {{ curso.cor_neon }};">Clique aqui para abrir.</a>
+                                        <p style="color: #ddd;">Visualização indisponível para este formato.</p>
+                                        <a href="{{ material.url_corrigida }}" target="_blank" style="color: {{ curso.cor_neon }}; text-decoration: underline;">
+                                            Clique para baixar ou abrir o arquivo
+                                        </a>
                                     </div>
                                 {% endif %}
                             </div>

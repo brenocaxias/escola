@@ -108,6 +108,17 @@
 
     .foto-img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
     
+    .footer-link {
+        color: #aaa;
+        font-size: 1.6rem;
+        transition: 0.3s;
+        text-decoration: none;
+    }
+    .footer-link:hover {
+        color: #ffcc00;
+        transform: translateY(-3px);
+    }
+
     /* --- RESPONSIVIDADE --- */
     @media (max-width: 992px) {
         .section-padding { padding: 40px 5%; }
@@ -115,8 +126,9 @@
         .hero p { font-size: 1.2rem; }
         .info-card { 
             padding: 30px 20px; 
-            flex-direction: column !important; /* Força empilhamento no mobile */
+            flex-direction: column !important;
             text-align: center;
+            gap: 30px;
         }
         .sobre-texto p, .maestro-texto p { text-align: center; }
         .foto-estilizada { max-width: 300px; }
@@ -139,6 +151,7 @@
             </p>
             <p>
                 A Escola possui Núcleo de Sopros, Cordas, Teclas, Prática de grupos coletivos e performances, proporcionando aos estudantes uma vivência completa e enriquecedora no universo musical. 
+                Os grupos formados na Escola de Música têm uma presença significativa em Groaíras, atuando em diversas manifestações culturais e contribuindo para o fortalecimento da identidade artística local. 
             </p>
         </div>
         <div class="foto-wrapper">
@@ -182,9 +195,42 @@
                     <small style="color: #ffcc00;">{{ foto.data_postagem|date:"d/m/Y" }}</small>
                 </div>
             </div>
+        {% empty %}
+            <div style="grid-column: 1 / -1; text-align: center; color: #666;">A vitrine está sendo preparada.</div>
         {% endfor %}
     </div>
 </section>
+
+<footer style="background: rgba(10, 10, 20, 0.95); padding: 40px 10%; border-top: 1px solid rgba(255, 204, 0, 0.2);">
+    <div class="footer-content" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 30px;">
+        
+        <div>
+            <h4 style="color: #ffcc00; margin-bottom: 5px; font-size: 1.3rem;">EMG</h4>
+            <p style="color: #777; font-size: 0.9rem;">Escola de Música de Groaíras</p>
+        </div>
+
+        <div class="footer-dev" style="text-align: right;">
+            <p style="color: #eee; font-size: 1rem; margin-bottom: 12px;">
+                Desenvolvido por <span style="color: #ffcc00; font-weight: bold;">Breno Caxias</span>
+            </p>
+            <div class="footer-socials" style="display: flex; gap: 20px; justify-content: flex-end;">
+                <a href="https://github.com/brenocaxias" target="_blank" class="footer-link" title="Meu GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="https://instagram.com/brenocaxias" target="_blank" class="footer-link" title="Meu Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://www.instagram.com/escolademusica_groairas/" target="_blank" class="footer-link" style="color: #ff8c00;" title="Instagram da EMG">
+                    <i class="fas fa-university"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+        <small style="color: #444;">&copy; 2026 Todos os direitos reservados à Escola de Música de Groaíras.</small>
+    </div>
+</footer>
 
 <script>
     function reveal() {

@@ -13,7 +13,7 @@
             <div class="modulo-section">
                 <h2 style="color: #fff; font-size: 1.4rem; margin-bottom: 15px; border-left: 4px solid {{ curso.cor_neon }}; padding-left: 15px;">
                     {{ modulo.titulo }}
-                    <small style="color: yellow;">DEBUG: {{ material.arquivo.name }}</small>
+    
                 </h2>
 
                 <div style="display: grid; gap: 20px;">
@@ -38,6 +38,7 @@
                                     
                                     <div>
                                         <h3 style="margin: 0; font-size: 1.1rem; color: #eee;">{{ material.titulo }}</h3>
+                                        <small style="color: yellow;">DEBUG: {{ material.arquivo.name }}</small>
                                         <small style="color: #666;">Enviado em: {{ material.data_upload|date:"d/m/Y" }}</small>
                                     </div>
                                 </div>

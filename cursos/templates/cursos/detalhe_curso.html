@@ -3,113 +3,90 @@
 
 {% block conteudo %}
 <div class="main-container">
-    <h1 style="color: {{ curso.cor_neon }}; text-shadow: 0 0 10px {{ curso.cor_neon }}55; margin-bottom: 10px;">
-        {{ curso.nome }}
-    </h1>
-    <p style="color: #888; margin-bottom: 30px;">Organizado por módulos e materiais de apoio</p>
+    <h1 style="color: {{ curso.cor_neon }}; text-shadow: 0 0 10px {{ curso.cor_neon }}55;">{{ curso.nome }}</h1>
+    <p style="color: #888; margin-bottom: 30px;">Conteúdo e materiais de apoio</p>
 
     <div style="display: grid; gap: 30px;">
         {% for modulo in curso.modulos.all %}
             <div class="modulo-section">
-                <h2 style="color: #fff; font-size: 1.4rem; margin-bottom: 15px; border-left: 4px solid {{ curso.cor_neon }}; padding-left: 15px;">
+                <h2 style="color: #fff; border-left: 4px solid {{ curso.cor_neon }}; padding-left: 15px; margin-bottom: 20px;">
                     {{ modulo.titulo }}
                 </h2>
 
                 <div style="display: grid; gap: 20px;">
-                    {# --- LOOP DE MATERIAIS DO MÓDULO --- #}
                     {% for material in modulo.materiais.all %}
-                        <div class="glass-card" style="padding: 20px;">
+                        <div class="glass-card" style="padding: 20px; border: 1px solid rgba(255,255,255,0.1);">
                             
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-                                <div style="display: flex; align-items: center; gap: 15px;">
-                                    
-                                    {# --- ÍCONES DINÂMICOS --- #}
-                                    {# Forçamos a lógica de ícone a respeitar o nome do arquivo se o Cloudinary errar #}
-                                    {% if material.tipo_arquivo == 'video' %}
-                                        <i class="fas fa-file-video" style="font-size: 2rem; color: {{ curso.cor_neon }};"></i>
-                                    {% elif material.tipo_arquivo == 'pdf' or ".pdf" in material.arquivo.name|lower %}
-                                        <i class="fas fa-file-pdf" style="font-size: 2rem; color: #ff4757;"></i>
-                                    {% elif material.tipo_arquivo == 'imagem' %}
-                                        <i class="fas fa-file-image" style="font-size: 2rem; color: #00d2d3;"></i>
+                            {# --- CABEÇALHO DO CARD COM BOTÕES DE AÇÃO --- #}
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    {% if material.tipo_arquivo == 'link' %}
+                                        <i class="fab fa-youtube" style="font-size: 1.8rem; color: #ff0000;"></i>
+                                    {% elif material.tipo_arquivo == 'video' %}
+                                        <i class="fas fa-play-circle" style="font-size: 1.8rem; color: {{ curso.cor_neon }};"></i>
+                                    {% elif material.tipo_arquivo == 'pdf' %}
+                                        <i class="fas fa-file-pdf" style="font-size: 1.8rem; color: #ff4757;"></i>
                                     {% else %}
-                                        <i class="fas fa-file-alt" style="font-size: 2rem; color: #aaa;"></i>
+                                        <i class="fas fa-image" style="font-size: 1.8rem; color: #00d2d3;"></i>
+                                    {% endif %}
+                                    <h3 style="margin: 0; font-size: 1.1rem; color: #eee;">{{ material.titulo }}</h3>
+                                </div>
+
+                                <div style="display: flex; gap: 10px;">
+                                    {# BOTÃO DE DOWNLOAD (Apenas para arquivos reais) #}
+                                    {% if material.arquivo %}
+                                        <a href="{{ material.arquivo.url }}" download class="btn-entrar" 
+                                           style="text-decoration: none; font-size: 0.75rem; padding: 7px 12px; background: rgba(255,255,255,0.1); border: 1px solid {{ curso.cor_neon }}; color: #fff;">
+                                            <i class="fas fa-download"></i> BAIXAR ARQUIVO
+                                        </a>
                                     {% endif %}
                                     
-                                    <div>
-                                        <h3 style="margin: 0; font-size: 1.1rem; color: #eee;">{{ material.titulo }}</h3>
-                                        <p style="color: yellow; font-size: 10px;">
-                                         DEBUG -> Tipo detectado: {{ material.tipo_arquivo }} | URL: {{ material.arquivo.url }}</p>
-                                        <small style="color: #666;">Enviado em: {{ material.data_upload|date:"d/m/Y" }}</small>
-                                    </div>
+                                    {# BOTÃO ABRIR EM NOVA GUIA (Especialmente para PDF) #}
+                                    {% if material.tipo_arquivo == 'pdf' %}
+                                        <a href="{{ material.arquivo.url }}" target="_blank" class="btn-entrar" 
+                                           style="text-decoration: none; font-size: 0.75rem; padding: 7px 12px; background: {{ curso.cor_neon }}; border: none; color: #000; font-weight: bold;">
+                                            <i class="fas fa-external-link-alt"></i> VER EM TELA CHEIA
+                                        </a>
+                                    {% endif %}
                                 </div>
-
-                                {# BOTÃO DE DOWNLOAD #}
-                                {% if material.tipo_arquivo != 'video' %}
-                                    <a href="{{ material.arquivo.url }}" target="_blank" class="btn-entrar" 
-                                       style="text-decoration: none; font-size: 0.8rem; padding: 8px 15px; background: {{ curso.cor_neon }}; border: none;">
-                                        <i class="fas fa-download"></i> BAIXAR {% if ".pdf" in material.arquivo.name|lower %}PDF{% else %}{{ material.tipo_arquivo|upper }}{% endif %}
-                                    </a>
-                                {% endif %}
                             </div>
 
-                            {# --- ÁREA DE EXIBIÇÃO CORRIGIDA COM TRAVA DE SEGURANÇA --- #}
-                            
-                            {% if material.tipo_arquivo == 'video' %}
-                                <div class="video-container" style="background: #000; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                            {# --- ÁREA DE VISUALIZAÇÃO INTERNA --- #}
+                            <div class="visualizacao-container" style="background: rgba(0,0,0,0.3); border-radius: 8px; overflow: hidden;">
+                                
+                                {# 1. LINK EXTERNO (YOUTUBE / DRIVE) #}
+                                {% if material.tipo_arquivo == 'link' %}
+                                    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                                        <iframe src="{{ material.embed_url }}" 
+                                                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" 
+                                                allowfullscreen></iframe>
+                                    </div>
+
+                                {# 2. VÍDEO DO CLOUDINARY #}
+                                {% elif material.tipo_arquivo == 'video' %}
                                     <video controls controlsList="nodownload" style="width: 100%; display: block;">
                                         <source src="{{ material.arquivo.url }}" type="video/mp4">
-                                        Seu navegador não suporta a reprodução de vídeos.
                                     </video>
-                                </div>
-                            
-                            {# A TRAVA: Só entra aqui se o tipo for imagem E o nome do arquivo NÃO tiver ".pdf" #}
-                            {% elif material.tipo_arquivo == 'imagem' and ".pdf" not in material.arquivo.name|lower %}
-                                <div style="text-align: center; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 10px; border: 1px solid rgba(255,255,255,0.05);">
-                                    <img src="{{ material.arquivo.url }}" alt="{{ material.titulo }}" 
-                                         style="max-width: 100%; max-height: 500px; border-radius: 8px; cursor: pointer;"
-                                         onclick="window.open(this.src, '_blank')">
-                                    <p style="color: #666; font-size: 0.8rem; margin-top: 8px;">Clique na imagem para ampliar</p>
-                                </div>
 
-                            {# SE FOR PDF OU SE O CLOUDINARY TENTOU FINGIR QUE O PDF É IMAGEM #}
-                            {% else %}
-                                <div style="display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 30px; border: 1px dashed rgba(255,255,255,0.2);">
-                                    <div style="text-align: center;">
-                                        <i class="fas fa-file-pdf" style="font-size: 3rem; color: #ff4757; margin-bottom: 15px;"></i>
-                                        <p style="color: #ddd; margin-bottom: 15px;">Documento PDF disponível</p>
-                                        <a href="{{ material.arquivo.url }}" target="_blank" style="color: #fff; text-decoration: none; background: #ff4757; padding: 10px 20px; border-radius: 5px; font-weight: bold; box-shadow: 0 4px 15px rgba(255,71,87,0.3);">
-                                            VISUALIZAR MATERIAL
-                                        </a>
+                                {# 3. IMAGEM DO CLOUDINARY #}
+                                {% elif material.tipo_arquivo == 'imagem' %}
+                                    <div style="text-align: center; padding: 10px;">
+                                        <img src="{{ material.arquivo.url }}" style="max-width: 100%; max-height: 500px; border-radius: 4px;">
                                     </div>
-                                </div>
-                            {% endif %}
-                            
-                        </div>
-                    {% empty %}
-                        <p style="color: #555; font-style: italic; margin-left: 20px;">Nenhum material neste módulo.</p>
-                    {% endfor %}
 
-                    {# --- LOOP DE AULAS --- #}
-                    {% for aula in modulo.aulas.all %}
-                        <div class="glass-card" style="padding: 15px; border-left: 2px solid {{ curso.cor_neon }}; background: rgba(255,255,255,0.02);">
-                            <h4 style="margin: 0; color: #ddd; font-weight: normal;">
-                                <i class="fas fa-chalkboard-teacher" style="margin-right: 10px; color: {{ curso.cor_neon }};"></i> 
-                                Aula: {{ aula.titulo }}
-                            </h4>
+                                {# 4. PDF (CARD SIMPLES JÁ QUE ABRE EM OUTRA GUIA) #}
+                                {% elif material.tipo_arquivo == 'pdf' %}
+                                    <div style="text-align: center; padding: 40px;">
+                                        <i class="fas fa-file-pdf" style="font-size: 3rem; color: #ff4757; opacity: 0.5;"></i>
+                                        <p style="color: #888; margin-top: 10px;">Clique no botão superior para ler este PDF</p>
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
                     {% endfor %}
                 </div>
             </div>
-        {% empty %}
-            <div class="glass-card" style="padding: 30px; text-align: center; color: #666;">
-                <i class="fas fa-info-circle"></i> Nenhum módulo ou conteúdo disponível para este curso ainda.
-            </div>
         {% endfor %}
     </div>
-
-    <br><br>
-    <a href="{% url 'index' %}" style="color: {{ curso.cor_neon }}; text-decoration: none; font-weight: bold; transition: 0.3s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
-        <i class="fas fa-chevron-left"></i> Voltar aos meus cursos
-    </a>
 </div>
 {% endblock %}

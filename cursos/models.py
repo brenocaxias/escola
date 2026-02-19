@@ -41,40 +41,46 @@ class Aula(models.Model):
 class Material(models.Model):
     modulo = models.ForeignKey(Modulo, on_delete=models.CASCADE, related_name='materiais')
     titulo = models.CharField(max_length=200)
-    arquivo = models.FileField(upload_to='materiais/') # Removi o 'pdf' do caminho para não confundir
+    # Arquivo opcional para quando for link
+    arquivo = models.FileField(upload_to='materiais/', null=True, blank=True)
+    # Campo para links do YouTube, Drive, etc.
+    link_externo = models.URLField(max_length=500, null=True, blank=True, help_text="Link do YouTube ou Google Drive (compartilhado)")
     data_upload = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.titulo} - {self.modulo.titulo}"
 
     @property
     def tipo_arquivo(self):
-        # 1. Pegamos o nome do arquivo como ele foi salvo no banco (geralmente guarda a extensão original)
-        nome_banco = str(self.arquivo.name).lower()
+        if self.link_externo:
+            return 'link'
         
-        # 2. Pegamos a URL para checar se o Cloudinary já marcou como vídeo
-        url_completa = ""
-        try:
-            url_completa = self.arquivo.url.lower()
-        except:
-            pass
-
-        # LÓGICA DE PRIORIDADE
-        # Se tiver extensões de vídeo ou /video/ na URL
-        if any(ext in nome_banco for ext in ['.mp4', '.mov', '.webm']) or '/video/' in url_completa:
-            return 'video'
+        nome_banco = str(self.arquivo.name).lower() if self.arquivo else ""
+        url_completa = str(self.arquivo.url).lower() if self.arquivo else ""
         
-        # Se tiver extensões de imagem ou /image/ na URL
-        # MAS, precisamos garantir que não seja um PDF que o Cloudinary "fingiu" ser imagem
-        if any(ext in nome_banco for ext in ['.jpg', '.jpeg', '.png', '.webp']):
-            return 'imagem'
-
-        # Se o nome no banco contiver 'pdf' ou se nada acima bater, 
-        # para materiais didáticos, o porto seguro é ser PDF/Arquivo
         if 'pdf' in nome_banco or 'pdf' in url_completa:
             return 'pdf'
+        if any(ext in nome_banco for ext in ['.mp4', '.mov', '.webm']) or '/video/' in url_completa:
+            return 'video'
+        if any(ext in nome_banco for ext in ['.jpg', '.jpeg', '.png', '.webp']) or '/image/' in url_completa:
+            return 'imagem'
+        return 'outro'
 
-        return 'pdf'
+    @property
+    def embed_url(self):
+        """Converte links normais em links de embed"""
+        if not self.link_externo:
+            return None
+        
+        url = self.link_externo
+        # YouTube
+        if 'youtube.com/watch?v=' in url:
+            return url.replace('watch?v=', 'embed/')
+        if 'youtu.be/' in url:
+            video_id = url.split('/')[-1]
+            return f"https://www.youtube.com/embed/{video_id}"
+        # Google Drive
+        if 'drive.google.com' in url:
+            return url.replace('/view', '/preview')
+        
+        return url
 
 class Aluno(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

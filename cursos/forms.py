@@ -62,7 +62,7 @@ class CursoForm(forms.ModelForm):
 class ModuloForm(forms.ModelForm):
     class Meta:
         model = Modulo # Verifique se o nome do seu model é Modulo
-        fields = ['titulo', 'descricao', 'curso']
+        fields = ['titulo','descricao', 'curso']
         widgets = {
             'titulo': forms.TextInput(attrs={'class': 'input-glass', 'placeholder': 'Ex: Básico I ou Teoria Musical'}),
             'descricao': forms.Textarea(attrs={'class': 'input-glass', 'placeholder': 'O que será estudado neste módulo...', 'rows': 3}),

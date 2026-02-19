@@ -6,6 +6,7 @@ class Curso(models.Model):
     nome = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
     descricao = models.TextField()
+    imagem_fundo = models.ImageField(upload_to='cursos/capas/', null=True, blank=True) # ADICIONAR ESTA LINHA
     cor_neon = models.CharField(max_length=7, default="#8A2BE2")
     data_criacao = models.DateTimeField(auto_now_add=True)
 
@@ -16,6 +17,7 @@ class Curso(models.Model):
 class Modulo(models.Model):
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='modulos')
     titulo = models.CharField(max_length=200)
+    descricao = models.TextField(null=True, blank=True) # ADICIONAR ESTA LINHA
     ordem = models.PositiveIntegerField(default=1, help_text="Ordem de exibição (1, 2, 3...)")
 
     class Meta:

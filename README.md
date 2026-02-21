@@ -27,3 +27,23 @@ Sistema de gestão de cursos e materiais de apoio para alunos e coordenadores, d
    ```bash
    git clone [https://github.com/seu-utilizador/nome-do-repo.git](https://github.com/seu-utilizador/nome-do-repo.git)
    cd nome-do-repo
+2. **Criar e ativar o ambiente virtual:**
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # Linux/Mac
+   .venv\Scripts\activate     # Windows
+3. **Instalar as dependências:**
+   ```bash
+   pip install -r requirements.txt
+4. **Configurar o .env:**
+   ```bash
+   DEBUG=True
+   SECRET_KEY=sua_chave_secreta
+   CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
+   DATABASE_URL=postgres://user:pass@host:port/dbname
+5. **Executar as migrações:**
+   ```bash
+   python manage.py migrate
+6. **Iniciar o servidor:**
+   ```bash
+   python manage.py runserver

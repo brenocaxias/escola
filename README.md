@@ -16,7 +16,7 @@ Sistema de gestão de cursos e materiais de apoio para alunos e coordenadores, d
 ## 🛠️ Tecnologias Utilizadas
 
 - **Backend:** Python / Django 5.x
-- **Base de Dados:** PostgreSQL (Railway)
+- **Base de Dados:** MySQL (Railway)
 - **Media & Assets:** Cloudinary (Armazenamento em nuvem)
 - **Frontend:** HTML5, CSS3 (Glassmorphism design), FontAwesome.
 - **Deploy:** Railway.app

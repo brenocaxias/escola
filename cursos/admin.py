@@ -33,11 +33,10 @@ class ModuloAdmin(admin.ModelAdmin):
 
 @admin.register(Material)
 class MaterialAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'modulo', 'tipo_arquivo', 'data_upload')
-    list_filter = ('modulo__curso', 'modulo')
+    list_display = ('titulo', 'modulo', 'tipo', 'data_upload')
+    list_filter = ('modulo__curso', 'modulo', 'tipo')
     search_fields = ('titulo',)
-    # Organiza os campos no formulário de edição individual
-    fields = ('modulo', 'titulo', 'arquivo', 'link_externo')
+    fields = ('modulo', 'titulo', 'tipo', 'arquivo', 'link_externo')
 
 @admin.register(Aluno)
 class AlunoAdmin(admin.ModelAdmin):

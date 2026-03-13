@@ -4,24 +4,13 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- SEGURANÇA ---
-SECRET_KEY = os.getenv('SECRET_KEY')
-if not SECRET_KEY:
-    raise ValueError("SECRET_KEY não definida nas variáveis de ambiente!")
-
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-he8qc3tc6w$gkrkmnovhc!n87(=x$qit51)iz%5ibxs=wxlvzc')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
-
-# BUG CRÍTICO CORRIGIDO: ALLOWED_HOSTS = ['*'] é perigoso em produção
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'escola-musica-groairas.up.railway.app').split(',')
-
+ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = ['https://escola-musica-groairas.up.railway.app']
 
-# Headers de segurança — só ativar quando HTTPS estiver garantido (Railway garante)
-if not DEBUG:
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+# Permite iframes dentro do mesmo domínio (necessário para visualização de PDFs)
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # --- APLICAÇÕES ---
 INSTALLED_APPS = [
@@ -68,13 +57,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'escola_de_musica.wsgi.application'
 
 # --- BANCO DE DADOS ---
-# BUG CRÍTICO CORRIGIDO: senha real removida do código — usar sempre variáveis de ambiente
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.getenv('DB_NAME', 'emg_db'),
         'USER': os.getenv('DB_USER', 'root'),
-        'PASSWORD': os.getenv('DB_PASSWORD', ''),  
+        'PASSWORD': os.getenv('DB_PASSWORD', 'Caxias0404'),  # usado só localmente
         'HOST': os.getenv('DB_HOST', '127.0.0.1'),
         'PORT': os.getenv('DB_PORT', '3306'),
     }
@@ -86,7 +74,7 @@ TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True
 
-# --- ARQUIVOS ESTÁTICOS ---
+# --- ARQUIVOS ESTÁTICOS E MÍDIA ---
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = []
@@ -100,6 +88,7 @@ CLOUDINARY_STORAGE = {
     'API_KEY': os.getenv('API_KEY'),
     'API_SECRET': os.getenv('API_SECRET'),
     'RESOURCE_TYPES': 'auto',
+    'ACCESS_MODE': 'public',
 }
 
 # --- STORAGES ---
@@ -119,9 +108,6 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
-
-# Permite que o iframe funcione dentro do próprio domínio
-X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # --- AUTENTICAÇÃO ---
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

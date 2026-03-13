@@ -6,14 +6,13 @@ from django.utils.text import slugify
 
 class Curso(models.Model):
     nome = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True, blank=True)  # MELHORIA: gerado automaticamente
+    slug = models.SlugField(unique=True, blank=True)
     descricao = models.TextField()
     imagem_fundo = models.ImageField(upload_to='cursos/capas/', null=True, blank=True)
     cor_neon = models.CharField(max_length=7, default="#8A2BE2")
     data_criacao = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        # MELHORIA: gera slug automaticamente a partir do nome
         if not self.slug:
             base_slug = slugify(self.nome)
             slug = base_slug
@@ -48,7 +47,6 @@ class Aula(models.Model):
     titulo = models.CharField(max_length=200)
     conteudo_texto = models.TextField()
     video_url = models.URLField(blank=True)
-    # MELHORIA: campo de ordem adicionado (igual ao Módulo)
     ordem = models.PositiveIntegerField(default=1, help_text="Ordem de exibição dentro do módulo")
 
     class Meta:
@@ -69,7 +67,6 @@ class Material(models.Model):
     data_upload = models.DateTimeField(auto_now_add=True)
 
     def clean(self):
-        # MELHORIA: valida que pelo menos um dos dois campos está preenchido
         if not self.arquivo and not self.link_externo:
             raise ValidationError("O material precisa ter um arquivo ou um link externo.")
 
@@ -80,34 +77,61 @@ class Material(models.Model):
         if not self.arquivo:
             return 'outro'
 
-        nome_arquivo = str(self.arquivo.name).lower()
+        nome = str(self.arquivo.name).lower()
+        url = str(self.arquivo.url).lower()
 
-        # BUG CORRIGIDO: não usa 'pdf' in url para evitar falsos positivos em URLs
-        if nome_arquivo.endswith('.pdf'):
+        # PDF
+        if nome.endswith('.pdf'):
             return 'pdf'
 
-        if any(nome_arquivo.endswith(ext) for ext in ['.mp4', '.mov', '.webm']):
+        # Vídeo — extensão ou caminho Cloudinary
+        if any(nome.endswith(ext) for ext in ['.mp4', '.mov', '.webm']):
+            return 'video'
+        if '/video/' in url:
             return 'video'
 
-        if any(nome_arquivo.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp']):
+        # Imagem — extensão ou caminho Cloudinary
+        # Cloudinary não preserva extensão na URL pública,
+        # então /image/upload/ é o sinal mais confiável
+        if any(nome.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']):
             return 'imagem'
-
-        # Fallback: tenta inferir pelo caminho no Cloudinary
-        url_completa = str(self.arquivo.url).lower()
-        if '/video/' in url_completa:
-            return 'video'
+        if '/image/upload/' in url:
+            return 'imagem'
 
         return 'outro'
 
     @property
     def url_corrigida(self):
-        """Garante que PDFs do Cloudinary sejam tratados como ficheiros e não imagens."""
+        """Garante que PDFs do Cloudinary sejam servidos como raw, não como imagem."""
         if not self.arquivo:
-            return None  # BUG CORRIGIDO: retorna None em vez de "" para clareza no template
-
+            return None
         url = self.arquivo.url
         if self.tipo_arquivo == 'pdf' and '/image/upload/' in url:
             return url.replace('/image/upload/', '/raw/upload/')
+        return url
+
+    @property
+    def embed_url(self):
+        """
+        Converte URLs do YouTube e Google Drive para formato embed.
+        YouTube: https://www.youtube.com/watch?v=ID  ->  https://www.youtube.com/embed/ID
+        Drive:   https://drive.google.com/file/d/ID/view  ->  .../preview
+        """
+        if not self.link_externo:
+            return ''
+        url = self.link_externo
+
+        if 'youtube.com/watch' in url:
+            video_id = url.split('v=')[-1].split('&')[0]
+            return f'https://www.youtube.com/embed/{video_id}'
+
+        if 'youtu.be/' in url:
+            video_id = url.split('youtu.be/')[-1].split('?')[0]
+            return f'https://www.youtube.com/embed/{video_id}'
+
+        if 'drive.google.com' in url:
+            return url.replace('/view', '/preview').replace('/edit', '/preview')
+
         return url
 
     def __str__(self):

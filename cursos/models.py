@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
+from cloudinary_storage.storage import RawMediaCloudinaryStorage
 
 
 class Curso(models.Model):
@@ -77,7 +78,12 @@ class Material(models.Model):
         default='outro',
         help_text="Escolha o tipo do material para exibição correta na plataforma."
     )
-    arquivo = models.FileField(upload_to='materiais/', null=True, blank=True)
+    arquivo = models.FileField(
+        upload_to='materiais/',
+        storage=RawMediaCloudinaryStorage(),  # Salva como raw — funciona com PDF, doc, etc.
+        null=True,
+        blank=True
+    )
     link_externo = models.URLField(max_length=500, null=True, blank=True,
                                    help_text="Link do YouTube ou Google Drive (compartilhado)")
     data_upload = models.DateTimeField(auto_now_add=True)

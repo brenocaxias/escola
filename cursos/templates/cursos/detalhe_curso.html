@@ -79,17 +79,13 @@
                                              alt="{{ material.titulo }}">
                                     </div>
 
-                                {# 4. PDF — iframe direto com url_corrigida (/raw/upload/) #}
+                                {# 4. PDF — servido via proxy Django (resolve bloqueio Cloudinary) #}
                                 {% elif material.tipo_arquivo == 'pdf' %}
                                     <div style="height: 650px; width: 100%;">
                                         <iframe
-                                            src="{{ material.url_corrigida }}"
+                                            src="{% url 'servir_material' material.id %}"
                                             style="width: 100%; height: 100%; border: none;"
                                             loading="lazy">
-                                            <p style="color:#aaa; padding:20px;">
-                                                Seu navegador não suporta visualização de PDF.
-                                                <a href="{{ material.url_corrigida }}" target="_blank" style="color:#a29bfe;">Clique aqui para abrir.</a>
-                                            </p>
                                         </iframe>
                                     </div>
 

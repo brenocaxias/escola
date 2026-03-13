@@ -3,10 +3,13 @@ from django.contrib.auth.decorators import user_passes_test, login_required
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.db.models import Q
+from django.http import HttpResponse, Http404
+
+import requests as http_requests
 
 from cursos.models import Aluno, Curso, Galeria, Material
 from .forms import CadastroAlunoForm, FotoGaleriaForm, MaterialForm, CursoForm, ModuloForm
-from .models import Galeria  # import único e correto
+from .models import Galeria
 from django.contrib.auth.models import User
 
 
@@ -27,7 +30,6 @@ def _is_superuser(u):
 # ---------------------------------------------------------------------------
 
 def index(request):
-    """Página inicial. Comportamento diferente por tipo de utilizador."""
     if not request.user.is_authenticated:
         cursos = Curso.objects.all()
         return render(request, 'cursos/index.html', {'cursos': cursos})
@@ -38,17 +40,13 @@ def index(request):
         if hasattr(request.user, 'aluno'):
             cursos = request.user.aluno.cursos_matriculados.all()
         else:
-            cursos = Curso.objects.none()  # QuerySet vazio em vez de lista Python
+            cursos = Curso.objects.none()
 
     return render(request, 'cursos/index.html', {'cursos': cursos})
 
 
 @login_required
 def detalhe_curso(request, instrumento_slug):
-    """
-    BUG CORRIGIDO: adicionado @login_required para evitar que utilizadores
-    anônimos cheguem à lógica de permissão.
-    """
     curso = get_object_or_404(Curso, slug=instrumento_slug)
 
     if not request.user.is_superuser:
@@ -62,16 +60,54 @@ def detalhe_curso(request, instrumento_slug):
 
 @login_required
 def login_sucesso(request):
-    """BUG CORRIGIDO: adicionado @login_required."""
     if request.user.is_superuser:
         return redirect('painel_coordenador')
     return redirect('index')
 
 
 def home(request):
-    """Página pública com galeria de fotos."""
     fotos_galeria = Galeria.objects.all().order_by('-data_postagem')
     return render(request, 'cursos/home.html', {'fotos': fotos_galeria})
+
+
+# ---------------------------------------------------------------------------
+# Proxy para servir materiais (resolve bloqueio CORS/auth do Cloudinary)
+# ---------------------------------------------------------------------------
+
+@login_required
+def servir_material(request, material_id):
+    """
+    Busca o arquivo no Cloudinary autenticado pelo servidor
+    e entrega ao aluno — resolve o bloqueio 401 no iframe.
+    Só permite acesso se o aluno estiver matriculado no curso.
+    """
+    material = get_object_or_404(Material, id=material_id)
+
+    # Verifica permissão de acesso ao curso
+    if not request.user.is_superuser:
+        curso = material.modulo.curso
+        if not hasattr(request.user, 'aluno') or curso not in request.user.aluno.cursos_matriculados.all():
+            raise Http404
+
+    url = material.url_corrigida
+    if not url:
+        raise Http404
+
+    try:
+        resp = http_requests.get(url, timeout=15)
+        resp.raise_for_status()
+    except Exception:
+        raise Http404
+
+    # Define o content-type correto por tipo de material
+    tipos_content = {
+        'pdf':    'application/pdf',
+        'video':  'video/mp4',
+        'imagem': 'image/jpeg',
+    }
+    content_type = tipos_content.get(material.tipo, 'application/octet-stream')
+
+    return HttpResponse(resp.content, content_type=content_type)
 
 
 # ---------------------------------------------------------------------------
@@ -83,7 +119,6 @@ def home(request):
 def painel_coordenador(request):
     busca = request.GET.get('search', '').strip()
 
-    # MELHORIA: filtra apenas utilizadores que têm perfil Aluno (exclui admins da lista)
     alunos_qs = User.objects.filter(aluno__isnull=False)
     if busca:
         alunos_qs = alunos_qs.filter(
@@ -145,7 +180,7 @@ def editar_aluno(request, aluno_id):
 
 @login_required
 @user_passes_test(_is_staff)
-@require_POST  # BUG CORRIGIDO: exclusão só via POST, nunca via GET
+@require_POST
 def excluir_aluno(request, aluno_id):
     aluno = get_object_or_404(User, id=aluno_id)
     if not aluno.is_staff:
@@ -194,7 +229,7 @@ def editar_material(request, material_id):
 
 @login_required
 @user_passes_test(_is_staff)
-@require_POST  # BUG CORRIGIDO: adicionado @login_required + require_POST
+@require_POST
 def excluir_material(request, material_id):
     material = get_object_or_404(Material, id=material_id)
     if material.arquivo:
@@ -243,7 +278,6 @@ def cadastrar_modulo(request):
 @login_required
 @user_passes_test(_is_staff)
 def gerenciar_galeria(request):
-    """BUG CORRIGIDO: decoradores duplicados removidos."""
     fotos = Galeria.objects.all().order_by('-data_postagem')
 
     if request.method == 'POST':
@@ -260,7 +294,7 @@ def gerenciar_galeria(request):
 
 @login_required
 @user_passes_test(_is_staff)
-@require_POST  # BUG CORRIGIDO: exclusão só via POST
+@require_POST
 def excluir_foto(request, foto_id):
     foto = get_object_or_404(Galeria, id=foto_id)
     if foto.imagem:

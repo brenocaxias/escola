@@ -26,8 +26,10 @@ urlpatterns = [
     path('gestao/galeria/', views.gerenciar_galeria, name='gerenciar_galeria'),
     path('gestao/galeria/excluir/<int:foto_id>/', views.excluir_foto, name='excluir_foto'),
 
+    # Proxy para servir arquivos do Cloudinary sem bloqueio de autenticação
+    path('material/<int:material_id>/ver/', views.servir_material, name='servir_material'),
+
     # BUG CORRIGIDO: rota com <str:slug> deve ficar SEMPRE por último
-    # para não capturar URLs como "excluir-material", "editar-aluno" etc.
     path('<str:instrumento_slug>/', views.detalhe_curso, name='detalhe_curso'),
 ]
 

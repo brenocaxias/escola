@@ -16,8 +16,8 @@
                 <div style="display: grid; gap: 20px;">
                     {% for material in modulo.materiais.all %}
                         <div class="glass-card" style="padding: 20px; border: 1px solid rgba(255,255,255,0.1);">
-                            
-                            {# --- CABEÇALHO DO CARD COM BOTÕES DE AÇÃO --- #}
+
+                            {# --- CABEÇALHO DO CARD --- #}
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
                                 <div style="display: flex; align-items: center; gap: 12px;">
                                     {% if material.tipo_arquivo == 'link' %}
@@ -26,41 +26,42 @@
                                         <i class="fas fa-play-circle" style="font-size: 1.8rem; color: {{ curso.cor_neon }};"></i>
                                     {% elif material.tipo_arquivo == 'pdf' %}
                                         <i class="fas fa-file-pdf" style="font-size: 1.8rem; color: #ff4757;"></i>
-                                    {% else %}
+                                    {% elif material.tipo_arquivo == 'imagem' %}
                                         <i class="fas fa-image" style="font-size: 1.8rem; color: #00d2d3;"></i>
+                                    {% else %}
+                                        <i class="fas fa-file-alt" style="font-size: 1.8rem; color: #aaa;"></i>
                                     {% endif %}
                                     <h3 style="margin: 0; font-size: 1.1rem; color: #eee;">{{ material.titulo }}</h3>
                                 </div>
 
-                                <div style="display: flex; gap: 10px;">
-                                    {% if material.arquivo %}
-                                        {# Usamos url_corrigida para garantir o download do arquivo real #}
-                                        <a href="{{ material.url_corrigida }}" download class="btn-entrar" 
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                    {% if material.arquivo and material.tipo_arquivo != 'link' %}
+                                        <a href="{{ material.url_corrigida }}" download
+                                           class="btn-entrar"
                                            style="text-decoration: none; font-size: 0.75rem; padding: 7px 12px; background: rgba(255,255,255,0.1); border: 1px solid {{ curso.cor_neon }}; color: #fff;">
                                             <i class="fas fa-download"></i> BAIXAR
                                         </a>
                                     {% endif %}
-                                    
-                                    {% if material.tipo_arquivo == 'pdf' or material.link_externo %}
-                                        {# Botão ABRIR redireciona para o link externo ou para a URL corrigida do PDF #}
-                                        <a href="{% if material.link_externo %}{{ material.link_externo }}{% else %}{{ material.url_corrigida }}{% endif %}" 
-                                           target="_blank" class="btn-entrar" 
+
+                                    {% if material.tipo_arquivo == 'link' %}
+                                        <a href="{{ material.link_externo }}" target="_blank"
+                                           class="btn-entrar"
                                            style="text-decoration: none; font-size: 0.75rem; padding: 7px 12px; background: {{ curso.cor_neon }}; border: none; color: #000; font-weight: bold;">
-                                            <i class="fas fa-external-link-alt"></i> ABRIR EM NOVA ABA
+                                            <i class="fas fa-external-link-alt"></i> ABRIR
                                         </a>
                                     {% endif %}
                                 </div>
                             </div>
 
-                            {# --- ÁREA DE VISUALIZAÇÃO INTERNA --- #}
+                            {# --- ÁREA DE VISUALIZAÇÃO --- #}
                             <div class="visualizacao-container" style="background: rgba(0,0,0,0.3); border-radius: 8px; overflow: hidden;">
-                                
-                                {# 1. LINK EXTERNO (YOUTUBE / DRIVE) #}
+
+                                {# 1. LINK EXTERNO (YouTube / Drive) #}
                                 {% if material.tipo_arquivo == 'link' %}
                                     <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-                                        <iframe src="{{ material.embed_url }}" 
-                                                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" 
-                                                allowfullscreen></iframe>
+                                        <iframe src="{{ material.embed_url }}"
+                                                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+                                                allowfullscreen loading="lazy"></iframe>
                                     </div>
 
                                 {# 2. VÍDEO #}
@@ -73,27 +74,37 @@
                                 {# 3. IMAGEM #}
                                 {% elif material.tipo_arquivo == 'imagem' %}
                                     <div style="text-align: center; padding: 10px;">
-                                        <img src="{{ material.url_corrigida }}" style="max-width: 100%; max-height: 500px; border-radius: 4px;">
+                                        <img src="{{ material.url_corrigida }}"
+                                             style="max-width: 100%; max-height: 500px; border-radius: 4px;"
+                                             alt="{{ material.titulo }}">
                                     </div>
 
-                                {# 4. PDF (USANDO PLAYER DO GOOGLE PARA EVITAR ERRO DE IMAGEM DO CLOUDINARY) #}
+                                {# 4. PDF — usando PDF.js da Mozilla (funciona com Cloudinary) #}
                                 {% elif material.tipo_arquivo == 'pdf' %}
-                                    <div style="height: 600px; width: 100%;">
-                                        <iframe src="https://docs.google.com/gview?url={{ material.url_corrigida }}&embedded=true" 
-                                                style="width:100%; height:100%;" frameborder="0"></iframe>
+                                    <div style="height: 650px; width: 100%; position: relative;">
+                                        <iframe
+                                            src="https://mozilla.github.io/pdf.js/web/viewer.html?file={{ material.url_corrigida|urlencode }}"
+                                            style="width: 100%; height: 100%; border: none;"
+                                            loading="lazy">
+                                        </iframe>
                                     </div>
 
-                                {# 5. OUTROS / FALLBACK #}
+                                {# 5. OUTROS — fallback com botão de download #}
                                 {% else %}
-                                    <div style="text-align: center; padding: 40px; background: rgba(255,255,255,0.02);">
-                                        <i class="fas fa-file-alt" style="font-size: 3rem; color: #888; margin-bottom: 15px;"></i>
-                                        <p style="color: #ddd;">Visualização indisponível para este formato.</p>
-                                        <a href="{{ material.url_corrigida }}" target="_blank" style="color: {{ curso.cor_neon }}; text-decoration: underline;">
-                                            Clique para baixar ou abrir o arquivo
-                                        </a>
+                                    <div style="text-align: center; padding: 40px;">
+                                        <i class="fas fa-file-alt" style="font-size: 3rem; color: #888; margin-bottom: 15px; display: block;"></i>
+                                        <p style="color: #ddd; margin-bottom: 15px;">Visualização indisponível para este formato.</p>
+                                        {% if material.url_corrigida %}
+                                            <a href="{{ material.url_corrigida }}" download
+                                               class="btn-entrar"
+                                               style="text-decoration: none; font-size: 0.85rem; padding: 10px 20px;">
+                                                <i class="fas fa-download"></i> BAIXAR ARQUIVO
+                                            </a>
+                                        {% endif %}
                                     </div>
                                 {% endif %}
                             </div>
+
                         </div>
                     {% empty %}
                         <p style="color: #555; font-style: italic; margin-left: 20px;">Nenhum material neste módulo.</p>

@@ -2,17 +2,24 @@
 
 {% block conteudo %}
 <div class="main-container" style="display: flex; justify-content: center; align-items: center; min-height: 80vh; padding: 20px;">
-    
+
     <div class="glass-card" style="padding: 40px; width: 100%; max-width: 600px; text-align: left;">
-        
+
         <div style="text-align: center; margin-bottom: 30px;">
             <h2 style="color: #a29bfe; margin-bottom: 10px;">
                 <i class="fas fa-cloud-upload-alt"></i> Subir Material Didático
             </h2>
             <p style="color: #888; font-size: 0.9rem;">
-                PDFs, Partituras ou Vídeos (MP4)
+                PDFs, Imagens, Vídeos (MP4) ou Links do YouTube / Google Drive
             </p>
         </div>
+
+        {# Exibe erros gerais do formulário (ex: nenhum arquivo nem link fornecido) #}
+        {% if form.non_field_errors %}
+            <div style="background: rgba(255,71,87,0.15); border: 1px solid #ff4757; border-radius: 8px; padding: 12px; margin-bottom: 20px; color: #ff4757; font-size: 0.9rem;">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
 
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -34,13 +41,20 @@
                 </div>
             {% endfor %}
 
+            {# Aviso visual: arquivo OU link #}
+            <div style="background: rgba(162,155,254,0.08); border: 1px solid rgba(162,155,254,0.3); border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 0.85rem; color: #a29bfe;">
+                <i class="fas fa-info-circle"></i>
+                Preencha o <strong>Arquivo</strong> <em>ou</em> o <strong>Link externo</strong> — não é necessário os dois.
+            </div>
+
             <button type="submit" class="btn-entrar" style="width: 100%; margin-top: 10px; padding: 15px; font-size: 1rem; letter-spacing: 1px;">
                 <i class="fas fa-check"></i> PUBLICAR MATERIAL
             </button>
         </form>
 
         <div style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; text-align: center;">
-            <a href="{% url 'painel_coordenador' %}" style="color: #aaa; text-decoration: none; font-size: 0.9rem; transition: 0.3s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">
+            <a href="{% url 'painel_coordenador' %}" style="color: #aaa; text-decoration: none; font-size: 0.9rem; transition: 0.3s;"
+               onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">
                 <i class="fas fa-arrow-left"></i> Voltar ao Painel de Gestão
             </a>
         </div>
@@ -48,18 +62,8 @@
 </div>
 
 <style>
-    /* Estilização extra para garantir que os inputs de arquivo e selects fiquem perfeitos */
-    input[type="file"].input-glass {
-        padding: 8px !important;
-    }
-    
-    select.input-glass {
-        cursor: pointer;
-    }
-
-    select.input-glass option {
-        background: #1e1e26; /* Cor escura para o dropdown não ficar branco */
-        color: #fff;
-    }
+    input[type="file"].input-glass { padding: 8px !important; }
+    select.input-glass { cursor: pointer; }
+    select.input-glass option { background: #1e1e26; color: #fff; }
 </style>
 {% endblock %}

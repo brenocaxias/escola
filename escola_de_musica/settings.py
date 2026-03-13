@@ -4,14 +4,28 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- SEGURANÇA ---
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-he8qc3tc6w$gkrkmnovhc!n87(=x$qit51)iz%5ibxs=wxlvzc')
+SECRET_KEY = os.getenv('SECRET_KEY')
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY não definida nas variáveis de ambiente!")
+
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = ['*']
+
+# BUG CRÍTICO CORRIGIDO: ALLOWED_HOSTS = ['*'] é perigoso em produção
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'escola-musica-groairas.up.railway.app').split(',')
+
 CSRF_TRUSTED_ORIGINS = ['https://escola-musica-groairas.up.railway.app']
+
+# Headers de segurança — só ativar quando HTTPS estiver garantido (Railway garante)
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 # --- APLICAÇÕES ---
 INSTALLED_APPS = [
-    'cloudinary_storage',           # Deve ser o primeiro
+    'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -19,13 +33,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'cloudinary',
     'django.contrib.staticfiles',
-    'cursos'
+    'cursos',
 ]
 
 # --- MIDDLEWARE ---
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Essencial para a Logo/Maestro
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -53,15 +67,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'escola_de_musica.wsgi.application'
 
-# --- BANCO DE DADOS (MYSQL RAILWAY) ---
-# --- BANCO DE DADOS (Configuração Híbrida) ---
+# --- BANCO DE DADOS ---
+# BUG CRÍTICO CORRIGIDO: senha real removida do código — usar sempre variáveis de ambiente
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME', 'emg_db'),        # 'emg_db' é o nome local
-        'USER': os.getenv('DB_USER', 'root'),          # 'root' é o usuário local
-        'PASSWORD': os.getenv('DB_PASSWORD', 'Caxias0404'), # Sua senha do Workbench
-        'HOST': os.getenv('DB_HOST', '127.0.0.1'),     # Localhost
+        'NAME': os.getenv('DB_NAME', 'emg_db'),
+        'USER': os.getenv('DB_USER', 'root'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),  
+        'HOST': os.getenv('DB_HOST', '127.0.0.1'),
         'PORT': os.getenv('DB_PORT', '3306'),
     }
 }
@@ -72,37 +86,33 @@ TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True
 
-# --- ARQUIVOS ESTÁTICOS E MÍDIA ---
+# --- ARQUIVOS ESTÁTICOS ---
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = []
 
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# --- CONFIGURAÇÃO CLOUDINARY ---
+# --- CLOUDINARY ---
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUD_NAME'),
     'API_KEY': os.getenv('API_KEY'),
     'API_SECRET': os.getenv('API_SECRET'),
     'RESOURCE_TYPES': 'auto',
-    'ACCESS_MODE': 'public',  # adiciona essa linha
 }
 
-# --- ARMAZENAMENTO (STORAGES) ---
+# --- STORAGES ---
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        # Mudamos de CompressedManifest para o simples, que é mais estável no Railway
-        "BACKEND": "whitenoise.storage.StaticFilesStorage", 
+        "BACKEND": "whitenoise.storage.StaticFilesStorage",
     },
 }
 STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
 
-# 4. Linha de segurança para o WhiteNoise
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_MANIFEST_STRICT = False
 STATICFILES_FINDERS = [
@@ -110,13 +120,11 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
-# Linha extra para garantir compatibilidade com o app cloudinary_storage
-
+# Permite que o iframe funcione dentro do próprio domínio
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # --- AUTENTICAÇÃO ---
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'login_sucesso'
 LOGIN_URL = '/accounts/login/'
 LOGOUT_REDIRECT_URL = 'login'
-
-#limpeza do git test

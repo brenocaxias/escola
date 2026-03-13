@@ -79,14 +79,14 @@
                                              alt="{{ material.titulo }}">
                                     </div>
 
-                                {# 4. PDF — servido via proxy Django (resolve bloqueio Cloudinary) #}
+                                {# 4. PDF — embed via proxy Django (sem iframe, sem X-Frame-Options) #}
                                 {% elif material.tipo_arquivo == 'pdf' %}
                                     <div style="height: 650px; width: 100%;">
-                                        <iframe
+                                        <embed
                                             src="{% url 'servir_material' material.id %}"
-                                            style="width: 100%; height: 100%; border: none;"
-                                            loading="lazy">
-                                        </iframe>
+                                            type="application/pdf"
+                                            style="width: 100%; height: 100%;">
+                                        </embed>
                                     </div>
 
                                 {# 5. OUTROS — fallback com botão de download #}

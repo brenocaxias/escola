@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 from cloudinary_storage.storage import RawMediaCloudinaryStorage
+import cloudinary.utils
+import time
 
 
 class Curso(models.Model):
@@ -61,7 +63,6 @@ class Aula(models.Model):
 
 class Material(models.Model):
 
-    # SOLUÇÃO: campo de tipo explícito — elimina adivinhação por URL/extensão
     TIPO_CHOICES = [
         ('pdf',    'PDF / Partitura'),
         ('video',  'Vídeo (MP4)'),
@@ -80,7 +81,7 @@ class Material(models.Model):
     )
     arquivo = models.FileField(
         upload_to='materiais/',
-        storage=RawMediaCloudinaryStorage(),  # Salva como raw — funciona com PDF, doc, etc.
+        storage=RawMediaCloudinaryStorage(),
         null=True,
         blank=True
     )
@@ -96,18 +97,36 @@ class Material(models.Model):
 
     @property
     def tipo_arquivo(self):
-        # Agora simplesmente retorna o campo salvo — sem adivinhação
         return self.tipo
 
     @property
     def url_corrigida(self):
-        """Para PDFs no Cloudinary: troca /image/upload/ por /raw/upload/"""
+        """
+        Gera URL assinada do Cloudinary com validade de 1 hora.
+        Resolve o problema de acesso 401 em arquivos raw.
+        """
         if not self.arquivo:
             return None
-        url = self.arquivo.url
-        if self.tipo == 'pdf' and '/image/upload/' in url:
-            return url.replace('/image/upload/', '/raw/upload/')
-        return url
+
+        try:
+            # Extrai o public_id sem o prefixo 'media/'
+            nome = str(self.arquivo.name)
+            # Remove 'media/' do início se existir
+            if nome.startswith('media/'):
+                public_id = nome[len('media/'):]
+            else:
+                public_id = nome
+
+            url, _ = cloudinary.utils.cloudinary_url(
+                public_id,
+                resource_type='raw',
+                sign_url=True,
+                expires_at=int(time.time()) + 3600,  # válida por 1 hora
+            )
+            return url
+        except Exception:
+            # Fallback: retorna URL direta se algo falhar
+            return self.arquivo.url
 
     @property
     def embed_url(self):

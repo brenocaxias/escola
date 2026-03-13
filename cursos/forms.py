@@ -73,21 +73,17 @@ class CadastroAlunoForm(forms.ModelForm):
 # ---------------------------------------------------------------------------
 
 class MaterialForm(forms.ModelForm):
-    """
-    BUG CORRIGIDO: campo 'link_externo' estava ausente no formulário,
-    impossibilitando o cadastro de materiais do tipo link (YouTube, Drive).
-    MELHORIA: validação de que arquivo OU link foi fornecido.
-    """
     class Meta:
         model = Material
-        fields = ['titulo', 'modulo', 'arquivo', 'link_externo']
+        fields = ['titulo', 'tipo', 'modulo', 'arquivo', 'link_externo']
         widgets = {
             'titulo': forms.TextInput(attrs={
                 'class': 'input-glass',
                 'placeholder': 'Ex: Partitura de Flauta',
             }),
-            'arquivo': forms.FileInput(attrs={'class': 'input-glass'}),
+            'tipo': forms.Select(attrs={'class': 'input-glass'}),
             'modulo': forms.Select(attrs={'class': 'input-glass'}),
+            'arquivo': forms.FileInput(attrs={'class': 'input-glass'}),
             'link_externo': forms.URLInput(attrs={
                 'class': 'input-glass',
                 'placeholder': 'https://youtube.com/... ou https://drive.google.com/...',
@@ -98,11 +94,8 @@ class MaterialForm(forms.ModelForm):
         cleaned_data = super().clean()
         arquivo = cleaned_data.get('arquivo')
         link_externo = cleaned_data.get('link_externo')
-
-        # MELHORIA: garante que pelo menos um dos dois foi fornecido
         if not arquivo and not link_externo:
             raise ValidationError("Forneça um arquivo ou um link externo (YouTube, Drive, etc).")
-
         return cleaned_data
 
 

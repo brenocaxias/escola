@@ -31,7 +31,7 @@ class Modulo(models.Model):
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='modulos')
     titulo = models.CharField(max_length=200)
     descricao = models.TextField(null=True, blank=True)
-    ordem = models.PositiveIntegerField(default=1, help_text="Ordem de exibição (1, 2, 3...)")
+    ordem = models.PositiveIntegerField(default=1)
 
     class Meta:
         ordering = ['ordem']
@@ -47,7 +47,7 @@ class Aula(models.Model):
     titulo = models.CharField(max_length=200)
     conteudo_texto = models.TextField()
     video_url = models.URLField(blank=True)
-    ordem = models.PositiveIntegerField(default=1, help_text="Ordem de exibição dentro do módulo")
+    ordem = models.PositiveIntegerField(default=1)
 
     class Meta:
         ordering = ['ordem']
@@ -59,8 +59,24 @@ class Aula(models.Model):
 
 
 class Material(models.Model):
+
+    # SOLUÇÃO: campo de tipo explícito — elimina adivinhação por URL/extensão
+    TIPO_CHOICES = [
+        ('pdf',    'PDF / Partitura'),
+        ('video',  'Vídeo (MP4)'),
+        ('imagem', 'Imagem'),
+        ('link',   'Link externo (YouTube / Drive)'),
+        ('outro',  'Outro arquivo'),
+    ]
+
     modulo = models.ForeignKey(Modulo, on_delete=models.CASCADE, related_name='materiais')
     titulo = models.CharField(max_length=200)
+    tipo = models.CharField(
+        max_length=10,
+        choices=TIPO_CHOICES,
+        default='outro',
+        help_text="Escolha o tipo do material para exibição correta na plataforma."
+    )
     arquivo = models.FileField(upload_to='materiais/', null=True, blank=True)
     link_externo = models.URLField(max_length=500, null=True, blank=True,
                                    help_text="Link do YouTube ou Google Drive (compartilhado)")
@@ -69,54 +85,27 @@ class Material(models.Model):
     def clean(self):
         if not self.arquivo and not self.link_externo:
             raise ValidationError("O material precisa ter um arquivo ou um link externo.")
+        if self.tipo == 'link' and not self.link_externo:
+            raise ValidationError("Para o tipo 'Link externo', preencha o campo Link externo.")
 
     @property
     def tipo_arquivo(self):
-        if self.link_externo:
-            return 'link'
-        if not self.arquivo:
-            return 'outro'
-
-        nome = str(self.arquivo.name).lower()
-        url = str(self.arquivo.url).lower()
-
-        # PDF
-        if nome.endswith('.pdf'):
-            return 'pdf'
-
-        # Vídeo — extensão ou caminho Cloudinary
-        if any(nome.endswith(ext) for ext in ['.mp4', '.mov', '.webm']):
-            return 'video'
-        if '/video/' in url:
-            return 'video'
-
-        # Imagem — extensão ou caminho Cloudinary
-        # Cloudinary não preserva extensão na URL pública,
-        # então /image/upload/ é o sinal mais confiável
-        if any(nome.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']):
-            return 'imagem'
-        if '/image/upload/' in url:
-            return 'imagem'
-
-        return 'outro'
+        # Agora simplesmente retorna o campo salvo — sem adivinhação
+        return self.tipo
 
     @property
     def url_corrigida(self):
-        """Garante que PDFs do Cloudinary sejam servidos como raw, não como imagem."""
+        """Para PDFs no Cloudinary: troca /image/upload/ por /raw/upload/"""
         if not self.arquivo:
             return None
         url = self.arquivo.url
-        if self.tipo_arquivo == 'pdf' and '/image/upload/' in url:
+        if self.tipo == 'pdf' and '/image/upload/' in url:
             return url.replace('/image/upload/', '/raw/upload/')
         return url
 
     @property
     def embed_url(self):
-        """
-        Converte URLs do YouTube e Google Drive para formato embed.
-        YouTube: https://www.youtube.com/watch?v=ID  ->  https://www.youtube.com/embed/ID
-        Drive:   https://drive.google.com/file/d/ID/view  ->  .../preview
-        """
+        """Converte links do YouTube e Google Drive para formato embed."""
         if not self.link_externo:
             return ''
         url = self.link_externo

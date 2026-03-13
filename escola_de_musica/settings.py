@@ -83,10 +83,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # --- CONFIGURAÇÃO CLOUDINARY ---
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUD_NAME'), # Use o seu Cloud Name aqui
-    'API_KEY': os.getenv('API_KEY'),   # Use sua API Key
-    'API_SECRET': os.getenv('API_SECRET'), # Coloque sua Secret real
+    'CLOUD_NAME': os.getenv('CLOUD_NAME'),
+    'API_KEY': os.getenv('API_KEY'),
+    'API_SECRET': os.getenv('API_SECRET'),
     'RESOURCE_TYPES': 'auto',
+    'ACCESS_MODE': 'public',  # adiciona essa linha
 }
 
 # --- ARMAZENAMENTO (STORAGES) ---

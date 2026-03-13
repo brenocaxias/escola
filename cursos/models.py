@@ -2,9 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
-from cloudinary_storage.storage import RawMediaCloudinaryStorage
-import cloudinary.utils
-import time
 
 
 class Curso(models.Model):
@@ -81,7 +78,6 @@ class Material(models.Model):
     )
     arquivo = models.FileField(
         upload_to='materiais/',
-        storage=RawMediaCloudinaryStorage(),
         null=True,
         blank=True
     )
@@ -102,28 +98,13 @@ class Material(models.Model):
     @property
     def url_corrigida(self):
         """
-        Gera URL assinada do Cloudinary com validade de 1 hora.
-        Resolve o problema de acesso 401 em arquivos raw.
+        Retorna a URL do arquivo.
+        Com AWS_QUERYSTRING_AUTH=True no settings, o django-storages
+        gera automaticamente URLs assinadas com validade de 1 hora.
         """
         if not self.arquivo:
             return None
-
-        try:
-            # O public_id no Cloudinary inclui o prefixo 'media/'
-            # ex: arquivo.name = 'media/materiais/arquivo.pdf'
-            # public_id deve ser passado SEM extensão para arquivos raw
-            nome = str(self.arquivo.name)
-
-            url, _ = cloudinary.utils.cloudinary_url(
-                nome,
-                resource_type='raw',
-                sign_url=True,
-                expires_at=int(time.time()) + 3600,  # válida por 1 hora
-            )
-            return url
-        except Exception:
-            # Fallback: retorna URL direta se algo falhar
-            return self.arquivo.url
+        return self.arquivo.url
 
     @property
     def embed_url(self):

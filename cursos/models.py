@@ -109,16 +109,13 @@ class Material(models.Model):
             return None
 
         try:
-            # Extrai o public_id sem o prefixo 'media/'
+            # O public_id no Cloudinary inclui o prefixo 'media/'
+            # ex: arquivo.name = 'media/materiais/arquivo.pdf'
+            # public_id deve ser passado SEM extensão para arquivos raw
             nome = str(self.arquivo.name)
-            # Remove 'media/' do início se existir
-            if nome.startswith('media/'):
-                public_id = nome[len('media/'):]
-            else:
-                public_id = nome
 
             url, _ = cloudinary.utils.cloudinary_url(
-                public_id,
+                nome,
                 resource_type='raw',
                 sign_url=True,
                 expires_at=int(time.time()) + 3600,  # válida por 1 hora

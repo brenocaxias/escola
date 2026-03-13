@@ -2,16 +2,72 @@
 {% block conteudo %}
 <div class="main-container" style="max-width: 600px; margin: 0 auto;">
     <div class="glass-card" style="padding: 40px;">
-        <h2 style="color: #a29bfe; text-align: center; margin-bottom: 30px;">Editar Cadastro: {{ aluno.username }}</h2>
-        
+        <h2 style="color: #a29bfe; text-align: center; margin-bottom: 30px;">
+            Editar Cadastro: {{ aluno.username }}
+        </h2>
+
         <form method="post">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn-entrar" style="width: 100%; margin-top: 20px;">
+
+            {# MELHORIA: campos renderizados individualmente com estilo input-glass
+               em vez de form.as_p, que ignorava os estilos do projeto #}
+
+            <div style="margin-bottom: 20px;">
+                <label style="color: #a29bfe; font-weight: bold; display: block; margin-bottom: 8px;">
+                    NOME DE USUÁRIO (LOGIN):
+                </label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <small style="color: #ff4757;">{{ form.username.errors|join:", " }}</small>
+                {% endif %}
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="color: #a29bfe; font-weight: bold; display: block; margin-bottom: 8px;">
+                    NOME:
+                </label>
+                {{ form.first_name }}
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="color: #a29bfe; font-weight: bold; display: block; margin-bottom: 8px;">
+                    E-MAIL:
+                </label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <small style="color: #ff4757;">{{ form.email.errors|join:", " }}</small>
+                {% endif %}
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="color: #a29bfe; font-weight: bold; display: block; margin-bottom: 8px;">
+                    NOVA SENHA: <small style="color: #888; font-weight: normal;">(deixe em branco para manter a atual)</small>
+                </label>
+                {{ form.password }}
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label style="color: #a29bfe; font-weight: bold; display: block; margin-bottom: 8px;">
+                    CONFIRMAR NOVA SENHA:
+                </label>
+                {{ form.password2 }}
+                {% if form.non_field_errors %}
+                    <small style="color: #ff4757;">{{ form.non_field_errors|join:", " }}</small>
+                {% endif %}
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label style="color: #a29bfe; font-weight: bold; display: block; margin-bottom: 12px;">
+                    CURSOS MATRICULADOS:
+                </label>
+                {{ form.cursos }}
+            </div>
+
+            <button type="submit" class="btn-entrar" style="width: 100%; margin-top: 10px;">
                 SALVAR ALTERAÇÕES
             </button>
         </form>
-        
+
         <p style="text-align: center; margin-top: 20px;">
             <a href="{% url 'painel_coordenador' %}" style="color: #888; text-decoration: none;">← Cancelar e Voltar</a>
         </p>

@@ -7,10 +7,10 @@
     {# CARD DE UPLOAD #}
     <div class="glass-card" style="padding: 30px; margin-bottom: 40px; max-width: 600px;">
         <h3 style="color: #a29bfe; margin-bottom: 20px;"><i class="fas fa-camera"></i> Subir Nova Foto</h3>
-        
+
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            
+
             <div style="margin-bottom: 20px;">
                 <label style="color: #a29bfe; font-weight: bold; display: block; margin-bottom: 8px;">TÍTULO DA FOTO:</label>
                 {{ form.titulo }}
@@ -30,7 +30,7 @@
     {# TABELA DE FOTOS EXISTENTES #}
     <div class="glass-card" style="padding: 30px;">
         <h3 style="color: #a29bfe; margin-bottom: 20px;"><i class="fas fa-images"></i> Fotos na Vitrine</h3>
-        
+
         <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse; color: white; text-align: left;">
                 <thead>
@@ -43,9 +43,12 @@
                 </thead>
                 <tbody>
                     {% for foto in fotos %}
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.03)'"
+                        onmouseout="this.style.background='transparent'">
                         <td style="padding: 10px;">
-                            <img src="{{ foto.imagem.url }}" style="height: 50px; width: 80px; object-fit: cover; border-radius: 5px; border: 1px solid rgba(255,255,255,0.2);">
+                            <img src="{{ foto.imagem.url }}"
+                                 style="height: 50px; width: 80px; object-fit: cover; border-radius: 5px; border: 1px solid rgba(255,255,255,0.2);">
                         </td>
                         <td style="padding: 15px; color: #fff !important;">
                             {{ foto.titulo|default:"Sem título" }}
@@ -54,16 +57,23 @@
                             {{ foto.data_postagem|date:"d/m/Y" }}
                         </td>
                         <td style="padding: 15px; text-align: center;">
-                            <a href="{% url 'excluir_foto' foto.id %}" 
-                               onclick="return confirm('Deseja remover esta foto da vitrine?');"
-                               style="color: #ff4757; text-decoration: none; font-size: 0.9rem;">
-                                <i class="fas fa-trash-alt"></i> Excluir
-                            </a>
+                            {# BUG CORRIGIDO: exclusão via form POST com CSRF, não via link GET #}
+                            <form method="POST" action="{% url 'excluir_foto' foto.id %}"
+                                  onsubmit="return confirm('Deseja remover esta foto da vitrine?');"
+                                  style="display: inline; margin: 0;">
+                                {% csrf_token %}
+                                <button type="submit"
+                                        style="background: none; border: none; cursor: pointer; color: #ff4757; font-size: 0.9rem; padding: 0;">
+                                    <i class="fas fa-trash-alt"></i> Excluir
+                                </button>
+                            </form>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" style="padding: 30px; text-align: center; color: #666;">Nenhuma foto na galeria da EMG.</td>
+                        <td colspan="4" style="padding: 30px; text-align: center; color: #666;">
+                            Nenhuma foto na galeria da EMG.
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>

@@ -1,17 +1,32 @@
 from django.db import models
 from django.contrib.auth.models import User
-import os
+from django.core.exceptions import ValidationError
+from django.utils.text import slugify
+
 
 class Curso(models.Model):
     nome = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, blank=True)  # MELHORIA: gerado automaticamente
     descricao = models.TextField()
     imagem_fundo = models.ImageField(upload_to='cursos/capas/', null=True, blank=True)
     cor_neon = models.CharField(max_length=7, default="#8A2BE2")
     data_criacao = models.DateTimeField(auto_now_add=True)
 
+    def save(self, *args, **kwargs):
+        # MELHORIA: gera slug automaticamente a partir do nome
+        if not self.slug:
+            base_slug = slugify(self.nome)
+            slug = base_slug
+            counter = 1
+            while Curso.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.nome
+
 
 class Modulo(models.Model):
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='modulos')
@@ -27,21 +42,36 @@ class Modulo(models.Model):
     def __str__(self):
         return f"{self.curso.nome} - {self.titulo}"
 
+
 class Aula(models.Model):
     modulo = models.ForeignKey(Modulo, on_delete=models.CASCADE, related_name='aulas')
     titulo = models.CharField(max_length=200)
     conteudo_texto = models.TextField()
     video_url = models.URLField(blank=True)
-    
+    # MELHORIA: campo de ordem adicionado (igual ao Módulo)
+    ordem = models.PositiveIntegerField(default=1, help_text="Ordem de exibição dentro do módulo")
+
+    class Meta:
+        ordering = ['ordem']
+        verbose_name = "Aula"
+        verbose_name_plural = "Aulas"
+
     def __str__(self):
         return self.titulo
+
 
 class Material(models.Model):
     modulo = models.ForeignKey(Modulo, on_delete=models.CASCADE, related_name='materiais')
     titulo = models.CharField(max_length=200)
     arquivo = models.FileField(upload_to='materiais/', null=True, blank=True)
-    link_externo = models.URLField(max_length=500, null=True, blank=True, help_text="Link do YouTube ou Google Drive (compartilhado)")
+    link_externo = models.URLField(max_length=500, null=True, blank=True,
+                                   help_text="Link do YouTube ou Google Drive (compartilhado)")
     data_upload = models.DateTimeField(auto_now_add=True)
+
+    def clean(self):
+        # MELHORIA: valida que pelo menos um dos dois campos está preenchido
+        if not self.arquivo and not self.link_externo:
+            raise ValidationError("O material precisa ter um arquivo ou um link externo.")
 
     @property
     def tipo_arquivo(self):
@@ -51,45 +81,54 @@ class Material(models.Model):
             return 'outro'
 
         nome_arquivo = str(self.arquivo.name).lower()
-        url_completa = str(self.arquivo.url).lower()
-        
-        # Se for PDF, vamos garantir que a URL não aponte para /image/
-        if nome_arquivo.endswith('.pdf') or 'pdf' in url_completa:
+
+        # BUG CORRIGIDO: não usa 'pdf' in url para evitar falsos positivos em URLs
+        if nome_arquivo.endswith('.pdf'):
             return 'pdf'
-        
-        if any(nome_arquivo.endswith(ext) for ext in ['.mp4', '.mov', '.webm']) or '/video/' in url_completa:
+
+        if any(nome_arquivo.endswith(ext) for ext in ['.mp4', '.mov', '.webm']):
             return 'video'
-            
+
         if any(nome_arquivo.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp']):
             return 'imagem'
-                
+
+        # Fallback: tenta inferir pelo caminho no Cloudinary
+        url_completa = str(self.arquivo.url).lower()
+        if '/video/' in url_completa:
+            return 'video'
+
         return 'outro'
 
     @property
     def url_corrigida(self):
-        """Garante que PDFs do Cloudinary sejam tratados como ficheiros e não imagens"""
+        """Garante que PDFs do Cloudinary sejam tratados como ficheiros e não imagens."""
         if not self.arquivo:
-            return ""
+            return None  # BUG CORRIGIDO: retorna None em vez de "" para clareza no template
+
         url = self.arquivo.url
         if self.tipo_arquivo == 'pdf' and '/image/upload/' in url:
-            # Troca 'image' por 'raw' na URL do Cloudinary para PDFs
             return url.replace('/image/upload/', '/raw/upload/')
         return url
+
+    def __str__(self):
+        return self.titulo
+
 
 class Aluno(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     cursos_matriculados = models.ManyToManyField(Curso, blank=True)
-    
+
     def __str__(self):
         return self.user.username
+
 
 class Galeria(models.Model):
     titulo = models.CharField(max_length=100, blank=True)
     imagem = models.ImageField(upload_to='galeria/')
     data_postagem = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         verbose_name_plural = 'Fotos da Galeria'
-        
+
     def __str__(self):
-        return self.titulo if self.titulo else f"foto {self.id}"
+        return self.titulo if self.titulo else f"Foto {self.id}"

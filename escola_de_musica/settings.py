@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -10,9 +11,11 @@ if not SECRET_KEY:
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'escola-musica-groairas.up.railway.app').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
-CSRF_TRUSTED_ORIGINS = ['https://escola-musica-groairas.up.railway.app']
+CSRF_TRUSTED_ORIGINS = [
+    os.getenv('CSRF_TRUSTED_ORIGIN', 'https://example.onrender.com')
+]
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
@@ -65,16 +68,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'escola_de_musica.wsgi.application'
 
-# --- BANCO DE DADOS ---
+# --- BANCO DE DADOS (PostgreSQL via DATABASE_URL) ---
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME', 'emg_db'),
-        'USER': os.getenv('DB_USER', 'root'),
-        'PASSWORD': os.getenv('DB_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', '127.0.0.1'),
-        'PORT': os.getenv('DB_PORT', '3306'),
-    }
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL'),
+        conn_max_age=600,
+    )
 }
 
 # --- INTERNACIONALIZAÇÃO ---
@@ -97,11 +96,11 @@ AWS_SECRET_ACCESS_KEY = os.getenv('B2_APP_KEY')
 AWS_STORAGE_BUCKET_NAME = os.getenv('B2_BUCKET_NAME', 'emg-materiais')
 AWS_S3_ENDPOINT_URL = os.getenv('B2_ENDPOINT', 'https://s3.us-west-004.backblazeb2.com')
 AWS_S3_REGION_NAME = 'us-west-004'
-AWS_DEFAULT_ACL = None  # bucket privado — URLs assinadas
+AWS_DEFAULT_ACL = None
 AWS_S3_SIGNATURE_VERSION = 's3v4'
-AWS_QUERYSTRING_AUTH = True       # gera URLs assinadas automaticamente
-AWS_QUERYSTRING_EXPIRE = 3600     # URL válida por 1 hora
-AWS_S3_FILE_OVERWRITE = False     # não sobrescreve arquivos com mesmo nome
+AWS_QUERYSTRING_AUTH = True
+AWS_QUERYSTRING_EXPIRE = 3600
+AWS_S3_FILE_OVERWRITE = False
 
 # --- STORAGES ---
 STORAGES = {
